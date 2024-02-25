@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "args": "",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/run",
+            "env": {},
+            "mainClass": "net.fabricmc.devlaunchinjector.Main",
+            "name": "Minecraft Client",
+            "projectName": "carpet-vpp",
+            "request": "launch",
+            "stopOnEntry": false,
+            "type": "java",
+            "vmArgs": "-Dfabric.dli.config=D:\\git-home\\minecraft\\carpet-vpp\\.gradle\\loom-cache\\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient"
+        },
+        {
+            "args": "nogui",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/build/datagen",
+            "env": {},
+            "mainClass": "net.fabricmc.devlaunchinjector.Main",
+            "name": "Minecraft Datagen",
+            "projectName": "carpet-vpp",
+            "request": "launch",
+            "stopOnEntry": false,
+            "type": "java",
+            "vmArgs": "-Dfabric.dli.config=D:\\git-home\\minecraft\\carpet-vpp\\.gradle\\loom-cache\\launch.cfg -Dfabric.dli.env=server -Dfabric-api.datagen -Dfabric-api.datagen.output-dir=D:\\git-home\\minecraft\\carpet-vpp\\src\\main\\generated -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"
+        },
+        {
+            "args": "nogui",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/run",
+            "env": {},
+            "mainClass": "net.fabricmc.devlaunchinjector.Main",
+            "name": "Minecraft Server",
+            "projectName": "carpet-vpp",
+            "request": "launch",
+            "stopOnEntry": false,
+            "type": "java",
+            "vmArgs": "-Dfabric.dli.config=D:\\git-home\\minecraft\\carpet-vpp\\.gradle\\loom-cache\\launch.cfg -Dfabric.dli.env=server -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"
+        }
+    ],
+    "version": "0.2.0"
+}

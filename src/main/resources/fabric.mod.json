@@ -1,0 +1,45 @@
+{
+    "accessWidener": "modid.accesswidener",
+    "authors": [
+        "Me!"
+    ],
+    "contact": {
+        "homepage": "https://fabricmc.net/",
+        "sources": "https://github.com/FabricMC/fabric-example-mod"
+    },
+    "depends": {
+        "fabric-api": "*",
+        "fabricloader": ">=0.15.7",
+        "java": ">=17",
+        "minecraft": "~1.19.2"
+    },
+    "description": "This is an example description! Tell everyone what your mod is about!",
+    "entrypoints": {
+        "client": [
+            "com.example.TemplateModClient"
+        ],
+        "main": [
+            "com.example.TemplateMod"
+        ],
+        "server": [
+            "com.example.TemplateModServer"
+        ]
+    },
+    "environment": "*",
+    "icon": "assets/template-mod/icon.png",
+    "id": "template-mod",
+    "license": "MIT",
+    "mixins": [
+        "template-mod.mixins.json",
+        {
+            "config": "template-mod.client.mixins.json",
+            "environment": "client"
+        }
+    ],
+    "name": "Template Mod",
+    "schemaVersion": 1,
+    "suggests": {
+        "another-mod": "*"
+    },
+    "version": "${version}"
+}
