@@ -11,7 +11,7 @@ import dragoncrafted87.vpp.item.BaseBagItem;
 import dragoncrafted87.vpp.item.BaseBagItem.BagType;
 import dragoncrafted87.vpp.mixin.client.HandledScreenAccessor;
 
-public class ScoutEmiPlugin implements EmiPlugin {
+public class MinecraftVPPEmiPlugin implements EmiPlugin {
 
     @Override
     public void register(EmiRegistry registry) {

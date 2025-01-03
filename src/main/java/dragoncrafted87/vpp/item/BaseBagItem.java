@@ -63,7 +63,7 @@ public class BaseBagItem extends TrinketItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
-        tooltip.add(Text.translatable("tooltip.scout.slots", Text.literal(String.valueOf(this.slots)).formatted(Formatting.BLUE)).formatted(Formatting.GRAY));
+        tooltip.add(Text.translatable("tooltip.vpp.slots", Text.literal(String.valueOf(this.slots)).formatted(Formatting.BLUE)).formatted(Formatting.GRAY));
     }
 
     public Inventory getInventory(ItemStack stack) {
