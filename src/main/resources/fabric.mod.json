@@ -1,4 +1,5 @@
 {
+    "schemaVersion": 1,
     "accessWidener": "modid.accesswidener",
     "authors": [
         "Me!"
@@ -8,36 +9,48 @@
         "sources": "https://github.com/FabricMC/fabric-example-mod"
     },
     "depends": {
-        "fabric-api": "*",
-        "fabricloader": ">=0.15.7",
-        "java": ">=17",
-        "minecraft": "~1.19.2"
+        "fabric": ">=${fabric_version}",
+        "minecraft": ">=${minecraft_version}",
+        "trinkets": ">=${trinkets_version}"
+    },
+    "recommends": {
+        "emi": ">=${emi_version}"
+    },
+    "breaks": {
+        "infinitory": "*",
+        "biginv": "*",
+        "extrainv": "*",
+        "inventory_backpack": "*",
+        "realistic-inventory": "*",
+        "inventorymod": "*"
     },
     "description": "This is an example description! Tell everyone what your mod is about!",
     "entrypoints": {
         "client": [
-            "com.example.TemplateModClient"
+            "dragoncrafted87.vpp.MinecraftVPPClient"
         ],
         "main": [
-            "com.example.TemplateMod"
+            "dragoncrafted87.vpp.MinecraftVPP"
         ],
         "server": [
-            "com.example.TemplateModServer"
+            "dragoncrafted87.vpp.MinecraftVPPServer"
+        ],
+        "emi": [
+            "dragoncrafted87.vpp.compat.ScoutEmiPlugin"
         ]
     },
     "environment": "*",
-    "icon": "assets/template-mod/icon.png",
-    "id": "template-mod",
+    "icon": "assets/minecraft-vpp/icon.png",
+    "id": "minecraft-vpp",
     "license": "MIT",
     "mixins": [
-        "template-mod.mixins.json",
+        "minecraft-vpp.mixins.json",
         {
-            "config": "template-mod.client.mixins.json",
+            "config": "minecraft-vpp.client.mixins.json",
             "environment": "client"
         }
     ],
     "name": "Template Mod",
-    "schemaVersion": 1,
     "suggests": {
         "another-mod": "*"
     },

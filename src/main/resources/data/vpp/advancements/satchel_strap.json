@@ -1,0 +1,47 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [
+            "vpp:satchel_strap"
+        ]
+    },
+    "criteria": {
+        "has_leather": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "minecraft:leather"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_string": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "minecraft:string"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+                "recipe": "vpp:satchel_strap"
+            }
+        }
+    },
+    "requirements": [
+        [
+            "has_leather",
+            "has_string",
+            "has_the_recipe"
+        ]
+    ]
+}

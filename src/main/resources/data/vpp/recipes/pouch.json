@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "SLS",
+        "LbL",
+        "SLS"
+    ],
+    "key": {
+        "L": {
+            "item": "minecraft:leather"
+        },
+        "S": {
+            "item": "minecraft:string"
+        },
+        "b": {
+            "item": "minecraft:stone_button"
+        }
+    },
+    "result": {
+        "item": "vpp:pouch"
+    }
+}

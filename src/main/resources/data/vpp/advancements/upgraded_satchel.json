@@ -1,0 +1,47 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [
+            "vpp:upgraded_satchel"
+        ]
+    },
+    "criteria": {
+        "has_diamond": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "minecraft:diamond"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_satchel": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "vpp:satchel"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+                "recipe": "vpp:upgraded_satchel"
+            }
+        }
+    },
+    "requirements": [
+        [
+            "has_diamond",
+            "has_satchel",
+            "has_the_recipe"
+        ]
+    ]
+}

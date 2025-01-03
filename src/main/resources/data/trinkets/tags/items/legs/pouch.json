@@ -1,0 +1,7 @@
+{
+    "replace": false,
+    "values": [
+        "vpp:pouch",
+        "vpp:upgraded_pouch"
+    ]
+}

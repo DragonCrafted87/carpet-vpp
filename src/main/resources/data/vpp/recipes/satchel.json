@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "TLT",
+        "LbL",
+        "SLS"
+    ],
+    "key": {
+        "L": {
+            "item": "minecraft:leather"
+        },
+        "S": {
+            "item": "minecraft:string"
+        },
+        "b": {
+            "item": "minecraft:stone_button"
+        },
+        "T": {
+            "item": "vpp:satchel_strap"
+        }
+    },
+    "result": {
+        "item": "vpp:satchel"
+    }
+}

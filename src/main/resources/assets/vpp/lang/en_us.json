@@ -1,0 +1,10 @@
+{
+  "itemGroup.vpp.itemgroup": "MinecraftVPP",
+  "item.vpp.satchel_strap": "Satchel Strap",
+  "item.vpp.satchel": "Satchel",
+  "item.vpp.upgraded_satchel": "Upgraded Satchel",
+  "item.vpp.pouch": "Pouch",
+  "item.vpp.upgraded_pouch": "Upgraded Pouch",
+  "trinkets.slot.legs.pouch": "Pouch",
+  "tooltip.vpp.slots": "Holds %d items"
+}
