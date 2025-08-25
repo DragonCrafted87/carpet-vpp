@@ -5,45 +5,50 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+import dragoncrafted87.vpp.BeaconChunkLoaderData;
+import dragoncrafted87.vpp.DebugFlags;
 import dragoncrafted87.vpp.MinecraftVPP;
-
-import net.minecraft.block.BeaconBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BeaconBlockEntity;
+import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.TickPriority;
 import net.minecraft.world.World;
+import net.minecraft.util.math.ChunkPos;
 
 @Debug(export = true)
 @Mixin(BeaconBlockEntity.class)
-public class BeaconBlockEntityMixin {
+public abstract class BeaconBlockEntityMixin {
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/BeaconBlockEntity;updateLevel(Lnet/minecraft/world/World;III)I", shift = At.Shift.AFTER))
     private static void extendTick(World world, BlockPos pos, BlockState state, BeaconBlockEntity blockEntity,
             CallbackInfo info) {
-
         if (world.getTime() % 80L == 0L) {
-            if (world.isReceivingRedstonePower(pos)) {
-                world.createAndScheduleBlockTick(pos, Blocks.BEACON, 1, TickPriority.VERY_HIGH);
-                if (world instanceof ServerWorld) {
-                    ServerWorld serverWorld = (ServerWorld) world;
+            if (world instanceof ServerWorld serverWorld) {
+                ChunkPos chunkPos = new ChunkPos(pos);
 
-                    // set chunk to be force loaded
-                    serverWorld.setChunkForced(pos.getX() >> 4, pos.getZ() >> 4, true);
-                }
-            } else {
-                if (world instanceof ServerWorld) {
-                    ServerWorld serverWorld = (ServerWorld) world;
+                int pyramidLevel = ((BeaconBlockEntityAccessor) blockEntity).getPyramidLevel();
+                boolean isActive = world.isReceivingRedstonePower(pos) && pyramidLevel > 0;
 
-                    // set chunk to be force loaded
-                    serverWorld.setChunkForced(pos.getX() >> 4, pos.getZ() >> 4, false);
+                BeaconChunkLoaderData data = BeaconChunkLoaderData.get(serverWorld);
+
+                if (isActive) {
+                    int radius = 1 + pyramidLevel;
+                    serverWorld.getChunkManager().addTicket(MinecraftVPP.BEACON, chunkPos, radius, pos);
+                    data.addBeacon(pos);
+
+                    if (DebugFlags.DEBUG_BEACON_LOADING) {
+                        MinecraftVPP.LOGGER.info("Beacon at {} is active, loading chunk with radius {}", pos.toString(),
+                                radius);
+                    }
+                } else {
+                    data.removeBeacon(pos);
+
+                    if (DebugFlags.DEBUG_BEACON_LOADING) {
+                        MinecraftVPP.LOGGER.info("Beacon at {} is inactive, skipping chunk ticket refresh",
+                                pos.toString());
+                    }
                 }
             }
         }
-
     }
-
 }

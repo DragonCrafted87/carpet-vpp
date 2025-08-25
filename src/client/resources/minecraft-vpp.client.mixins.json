@@ -1,11 +1,11 @@
 {
     "client": [
+        "ClientPlayerEntityMixin",
         "HandledScreenAccessor",
         "InGameHudMixin",
         "InventoryScreenMixin",
         "ItemStackMixin",
-        "RecipeBookWidgetMixin",
-        "ScreenHandlerMixin"
+        "RecipeBookWidgetMixin"
     ],
     "compatibilityLevel": "JAVA_17",
     "injectors": {

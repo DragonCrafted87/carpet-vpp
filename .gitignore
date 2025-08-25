@@ -17,3 +17,6 @@ hs_err_*.log
 out/
 replay_*.log
 run/
+.scratch/**
+server.log
+server_pipe.lnk

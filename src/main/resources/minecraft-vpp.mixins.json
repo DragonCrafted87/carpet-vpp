@@ -4,9 +4,11 @@
         "defaultRequire": 1
     },
     "mixins": [
+        "BeaconBlockEntityAccessor",
         "BeaconBlockEntityMixin",
         "BlocksMixin",
         "PlayerScreenHandlerMixin",
+        "ScreenHandlerMixin",
         "ServerPlayerEntityMixin"
     ],
     "package": "dragoncrafted87.vpp.mixin",

@@ -50,7 +50,7 @@
             "environment": "client"
         }
     ],
-    "name": "Template Mod",
+    "name": "Vanilla Plus Plus Mod",
     "suggests": {
         "another-mod": "*"
     },
