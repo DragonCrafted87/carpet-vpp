@@ -4,17 +4,16 @@
 clear
 
 # Check if genSources is needed
-if ./gradlew genSources --dry-run | grep -q "BUILD SUCCESSFUL"; then
-    echo "genSources is up to date, skipping."
-else
-    echo "Running genSources..."
-    ./gradlew genSources
+./gradlew genSources
+
+if [ $? -ne 0 ]; then
+    echo "Generate Sources failed. Exiting."
+    exit 1
 fi
 
 # Build the JAR
 ./gradlew build
 
-# Check if build was successful
 if [ $? -ne 0 ]; then
     echo "Build failed. Exiting."
     exit 1
