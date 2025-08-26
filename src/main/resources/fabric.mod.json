@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "accessWidener": "modid.accesswidener",
+    "accessWidener": "vpp.accesswidener",
     "authors": [
         "Me!"
     ],
@@ -41,7 +41,7 @@
     },
     "environment": "*",
     "icon": "assets/minecraft-vpp/icon.png",
-    "id": "minecraft-vpp",
+    "id": "vpp",
     "license": "MIT",
     "mixins": [
         "minecraft-vpp.mixins.json",

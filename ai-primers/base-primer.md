@@ -10,7 +10,7 @@
 
 ## 2. Code Priming and Editing Protocol
 - **User Input Format**: Prime with markdown blocks like:
-  ## path/to/file.java
+  ### path/to/file.java
   ```
   // Existing Java code here
   ```

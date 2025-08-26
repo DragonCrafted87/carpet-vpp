@@ -22,7 +22,7 @@ repositories {
         url = "https://maven.terraformersmc.com/"
     }
     maven {
-        name = "Ladysnake Libs"
+        name = "Ladysnake Mods"
         url = 'https://maven.ladysnake.org/releases'
     }
 }
