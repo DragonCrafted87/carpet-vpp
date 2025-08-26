@@ -1,16 +1,19 @@
 package dragoncrafted87.vpp;
+
+import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.OperatorEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.server.OperatorEntry;
-import com.mojang.authlib.GameProfile;
+
 import java.io.IOException;
-import net.minecraft.recipe.Recipe;
 import java.util.Collection;
+
 public class MinecraftVPPServer implements DedicatedServerModInitializer {
     public static MinecraftServer minecraft_server;
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPPServer");

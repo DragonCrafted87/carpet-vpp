@@ -1,9 +1,13 @@
 package dragoncrafted87.vpp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dragoncrafted87.vpp.bags.BaseBagItem;
+import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
+import dragoncrafted87.vpp.bags.InventoryUtility;
+import dragoncrafted87.vpp.bags.screen.BagSlot;
+import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
+import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
 import dragoncrafted87.vpp.gui.BagTooltipComponent;
-import dragoncrafted87.vpp.item.BagTooltipData;
+import dragoncrafted87.vpp.bags.item.BagTooltipData;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -11,14 +15,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import dragoncrafted87.vpp.item.BaseBagItem;
-import dragoncrafted87.vpp.item.BaseBagItem.BagType;
-import dragoncrafted87.vpp.screen.BagSlot;
-import dragoncrafted87.vpp.MinecraftVPPScreenHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MinecraftVPPClient implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPPClient");
-
     @Override
     public void onInitializeClient() {
         LOGGER.info("MinecraftVPPClient initialized successfully");
@@ -55,7 +56,6 @@ public class MinecraftVPPClient implements ClientModInitializer {
             }
         });
     }
-
     private static boolean isBagSlotMismatch(PlayerEntity player) {
         MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
         // Check satchel

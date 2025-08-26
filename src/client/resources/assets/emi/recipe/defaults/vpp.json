@@ -1,9 +1,9 @@
 {
-  "recipes": [
-    "vpp:pouch",
-    "vpp:satchel_strap",
-    "vpp:upgraded_pouch",
-    "vpp:upgraded_satchel",
-    "vpp:satchel"
-  ]
+    "recipes": [
+        "vpp:pouch",
+        "vpp:satchel_strap",
+        "vpp:upgraded_pouch",
+        "vpp:upgraded_satchel",
+        "vpp:satchel"
+    ]
 }

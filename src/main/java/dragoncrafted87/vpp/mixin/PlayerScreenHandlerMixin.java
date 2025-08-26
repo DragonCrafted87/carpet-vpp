@@ -1,5 +1,14 @@
 package dragoncrafted87.vpp.mixin;
 
+import dragoncrafted87.vpp.MinecraftVPP;
+import dragoncrafted87.vpp.bags.InventoryUtility;
+import dragoncrafted87.vpp.bags.screen.BagSlot;
+import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -7,22 +16,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.util.collection.DefaultedList;
-import dragoncrafted87.vpp.MinecraftVPP;
-import dragoncrafted87.vpp.MinecraftVPPScreenHandler;
-import dragoncrafted87.vpp.InventoryUtility;
-import dragoncrafted87.vpp.screen.BagSlot;
 
+// Lower priority to take priority over other mods
 @Mixin(value = PlayerScreenHandler.class, priority = 950)
 public abstract class PlayerScreenHandlerMixin extends ScreenHandler implements MinecraftVPPScreenHandler {
     protected PlayerScreenHandlerMixin() {
         super(null, 0);
     }
-
     @Shadow
     @Final
     private PlayerEntity owner;
@@ -32,7 +32,6 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler implements 
     public final DefaultedList<BagSlot> leftPouchSlots = DefaultedList.ofSize(MinecraftVPP.MAX_POUCH_SLOTS);
     @Unique
     public final DefaultedList<BagSlot> rightPouchSlots = DefaultedList.ofSize(MinecraftVPP.MAX_POUCH_SLOTS);
-
     @Inject(method = "<init>", at = @At("RETURN"))
     private void vpp$addSlots(PlayerInventory inventory, boolean onServer, PlayerEntity owner,
             CallbackInfo callbackInfo) {
@@ -78,17 +77,14 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler implements 
             y -= 18;
         }
     }
-
     @Override
     public final DefaultedList<BagSlot> vpp$getSatchelSlots() {
         return satchelSlots;
     }
-
     @Override
     public final DefaultedList<BagSlot> vpp$getLeftPouchSlots() {
         return leftPouchSlots;
     }
-
     @Override
     public final DefaultedList<BagSlot> vpp$getRightPouchSlots() {
         return rightPouchSlots;

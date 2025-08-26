@@ -1,27 +1,24 @@
 package dragoncrafted87.vpp.mixin;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import dragoncrafted87.vpp.bags.BaseBagItem;
+import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
+import dragoncrafted87.vpp.bags.InventoryUtility;
+import dragoncrafted87.vpp.bags.screen.BagSlot;
+import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
+import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.GameRules;
-import com.mojang.authlib.GameProfile;
-import dragoncrafted87.vpp.MinecraftVPPNetworking;
-import dragoncrafted87.vpp.MinecraftVPPScreenHandler;
-import dragoncrafted87.vpp.InventoryUtility;
-import dragoncrafted87.vpp.item.BaseBagItem;
-import dragoncrafted87.vpp.item.BaseBagItem.BagType;
-import dragoncrafted87.vpp.screen.BagSlot;
-import net.minecraft.network.encryption.PlayerPublicKey;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin {

@@ -1,32 +1,36 @@
 package dragoncrafted87.vpp;
 
+import dragoncrafted87.vpp.bags.BaseBagItem;
+import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
+import dragoncrafted87.vpp.bags.InventoryUtility;
+import dragoncrafted87.vpp.beacons.BeaconChunkLoaderData;
+import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
+import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
-import net.minecraft.util.registry.Registry;
-import dragoncrafted87.vpp.item.BaseBagItem;
-import dragoncrafted87.vpp.item.BaseBagItem.BagType;
-import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.util.math.BlockPos;
-import java.util.Comparator;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.block.Blocks;
+import net.minecraft.util.registry.Registry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.netty.buffer.Unpooled;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.event.Event;
 
 public class MinecraftVPP implements ModInitializer {
     public static final String MOD_ID = "vpp";
@@ -49,7 +53,6 @@ public class MinecraftVPP implements ModInitializer {
             BagType.POUCH);
     public static final ChunkTicketType<BlockPos> BEACON = ChunkTicketType.create("vpp_beacon",
             Comparator.comparingLong(BlockPos::asLong), 300); // 15 sec expiry
-
     @Override
     public void onInitialize() {
         LOGGER.info("MinecraftVPP initialized successfully");

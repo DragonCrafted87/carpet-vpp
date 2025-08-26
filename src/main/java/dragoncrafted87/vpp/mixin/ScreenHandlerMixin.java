@@ -1,13 +1,11 @@
 package dragoncrafted87.vpp.mixin;
 
+import com.google.common.collect.Table;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.ScreenHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-
-import com.google.common.collect.Table;
-
-import net.minecraft.inventory.Inventory;
-import net.minecraft.screen.ScreenHandler;
 
 @Mixin(ScreenHandler.class)
 public class ScreenHandlerMixin {

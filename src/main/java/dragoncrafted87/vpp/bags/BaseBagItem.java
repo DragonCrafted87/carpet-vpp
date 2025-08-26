@@ -1,8 +1,8 @@
-package dragoncrafted87.vpp.item;
+package dragoncrafted87.vpp.bags;
 
-import java.util.List;
-import java.util.Optional;
-import org.jetbrains.annotations.Nullable;
+import dragoncrafted87.vpp.DebugFlags;
+import dragoncrafted87.vpp.MinecraftVPP;
+import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketItem;
@@ -25,16 +25,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
-import dragoncrafted87.vpp.DebugFlags;
-import dragoncrafted87.vpp.MinecraftVPP;
-import dragoncrafted87.vpp.MinecraftVPPNetworking;
-import dragoncrafted87.vpp.InventoryUtility;
+import org.jetbrains.annotations.Nullable;
+
+import dragoncrafted87.vpp.bags.item.BagTooltipData;
+
+import java.util.List;
+import java.util.Optional;
 
 public class BaseBagItem extends TrinketItem {
     private static final String ITEMS_KEY = "Items";
     private final int slots;
     private final BagType type;
-
     public BaseBagItem(Settings settings, int slots, BagType type) {
         super(settings);
         if (type == BagType.SATCHEL && slots > MinecraftVPP.MAX_SATCHEL_SLOTS) {
@@ -46,15 +47,12 @@ public class BaseBagItem extends TrinketItem {
         this.slots = slots;
         this.type = type;
     }
-
     public int getSlotCount() {
         return this.slots;
     }
-
     public BagType getType() {
         return this.type;
     }
-
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
@@ -62,7 +60,6 @@ public class BaseBagItem extends TrinketItem {
                 .translatable("tooltip.vpp.slots", Text.literal(String.valueOf(this.slots)).formatted(Formatting.BLUE))
                 .formatted(Formatting.GRAY));
     }
-
     public Inventory getInventory(ItemStack stack) {
         SimpleInventory inventory = new SimpleInventory(this.slots) {
             @Override
@@ -79,7 +76,6 @@ public class BaseBagItem extends TrinketItem {
         InventoryUtility.inventoryFromTag(items, inventory);
         return inventory;
     }
-
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
         DefaultedList<ItemStack> stacks = DefaultedList.of();
@@ -91,17 +87,14 @@ public class BaseBagItem extends TrinketItem {
             return Optional.empty();
         return Optional.of(new BagTooltipData(stacks, slots));
     }
-
     @Override
     public void onEquip(ItemStack stack, SlotReference slotRef, LivingEntity entity) {
         updateBagSlotsAndNotify(entity, stack);
     }
-
     @Override
     public void onUnequip(ItemStack stack, SlotReference slotRef, LivingEntity entity) {
         updateBagSlotsAndNotify(entity, stack);
     }
-
     private void updateBagSlotsAndNotify(LivingEntity entity, ItemStack stack) {
         if (!(entity instanceof PlayerEntity player))
             return;
@@ -118,7 +111,6 @@ public class BaseBagItem extends TrinketItem {
                     entity.getName().getString());
         }
     }
-
     @Override
     public boolean canEquip(ItemStack stack, SlotReference slot, LivingEntity entity) {
         boolean isReplace = false;
@@ -136,7 +128,6 @@ public class BaseBagItem extends TrinketItem {
         int maxSlots = (this.type == BagType.SATCHEL ? 1 : 2);
         return isReplace || currentCount < maxSlots;
     }
-
     public enum BagType {
         SATCHEL,
         POUCH

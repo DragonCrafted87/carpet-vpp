@@ -4,12 +4,12 @@
 clear
 
 # Check if genSources is needed
-./gradlew genSources
+ ./gradlew genSources
 
-if [ $? -ne 0 ]; then
-    echo "Generate Sources failed. Exiting."
-    exit 1
-fi
+# if [ $? -ne 0 ]; then
+#     echo "Generate Sources failed. Exiting."
+#     exit 1
+# fi
 
 # Build the JAR
 ./gradlew build

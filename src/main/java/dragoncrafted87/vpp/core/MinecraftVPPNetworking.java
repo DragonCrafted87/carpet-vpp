@@ -1,5 +1,6 @@
-package dragoncrafted87.vpp;
+package dragoncrafted87.vpp.core;
 
+import dragoncrafted87.vpp.MinecraftVPP;
 import net.minecraft.util.Identifier;
 
 public class MinecraftVPPNetworking {
