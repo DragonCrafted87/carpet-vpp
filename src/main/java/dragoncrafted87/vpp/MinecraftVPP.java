@@ -22,9 +22,11 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.block.Blocks;
 import java.util.HashSet;
 import java.util.Set;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.event.Event;
 
 public class MinecraftVPP implements ModInitializer {
     public static final String MOD_ID = "vpp";
@@ -77,6 +79,13 @@ public class MinecraftVPP implements ModInitializer {
             for (BlockPos pos : toRemove) {
                 data.removeBeacon(pos);
             }
+        });
+        Identifier afterPhase = new Identifier(MOD_ID, "after");
+        ServerPlayConnectionEvents.JOIN.addPhaseOrdering(Event.DEFAULT_PHASE, afterPhase);
+        ServerPlayConnectionEvents.JOIN.register(afterPhase, (handler, sender, server) -> {
+            InventoryUtility.updateBagSlots(handler.player);
+            PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
+            sender.sendPacket(MinecraftVPPNetworking.ENABLE_SLOTS, packet);
         });
     }
 }

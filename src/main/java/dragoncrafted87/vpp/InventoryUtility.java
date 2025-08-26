@@ -22,7 +22,6 @@ public class InventoryUtility {
 
     public static ItemStack findBagItem(PlayerEntity player, BaseBagItem.BagType type, boolean right) {
         ItemStack targetStack = ItemStack.EMPTY;
-        boolean hasFirstPouch = false;
         Optional<TrinketComponent> _component = TrinketsApi.getTrinketComponent(player);
         if (_component.isPresent()) {
             TrinketComponent component = _component.get();
@@ -31,15 +30,8 @@ public class InventoryUtility {
                 if (slotStack.getItem() instanceof BaseBagItem) {
                     BaseBagItem bagItem = (BaseBagItem) slotStack.getItem();
                     if (bagItem.getType() == type) {
-                        if (type == BagType.POUCH) {
-                            if (right == true && hasFirstPouch == false) {
-                                hasFirstPouch = true;
-                                continue;
-                            } else {
-                                targetStack = slotStack;
-                                break;
-                            }
-                        } else {
+                        SlotReference slotRef = pair.getLeft();
+                        if (type == BagType.SATCHEL || slotRef.index() == (right ? 1 : 0)) {
                             targetStack = slotStack;
                             break;
                         }

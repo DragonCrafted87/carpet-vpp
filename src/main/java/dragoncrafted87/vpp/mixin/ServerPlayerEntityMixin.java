@@ -1,5 +1,4 @@
 package dragoncrafted87.vpp.mixin;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,17 +21,9 @@ import dragoncrafted87.vpp.item.BaseBagItem;
 import dragoncrafted87.vpp.item.BaseBagItem.BagType;
 import dragoncrafted87.vpp.screen.BagSlot;
 import net.minecraft.network.encryption.PlayerPublicKey;
-
 @SuppressWarnings("deprecation")
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin {
-    @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/world/ServerWorld;Lcom/mojang/authlib/GameProfile;Lnet/minecraft/network/encryption/PlayerPublicKey;)V")
-    private void vpp$updateSlotsAfterInit(MinecraftServer server, ServerWorld world, GameProfile profile,
-            PlayerPublicKey publicKey, CallbackInfo ci) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        InventoryUtility.updateBagSlots(player);
-    }
-
     @Inject(method = "onDeath", at = @At("HEAD"))
     private void vpp$attemptFixGraveMods(DamageSource source, CallbackInfo callbackInfo) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;

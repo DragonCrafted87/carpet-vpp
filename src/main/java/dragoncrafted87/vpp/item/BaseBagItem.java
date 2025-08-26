@@ -93,34 +93,27 @@ public class BaseBagItem extends TrinketItem {
 
     @Override
     public void onEquip(ItemStack stack, SlotReference slotRef, LivingEntity entity) {
-        if (entity.getWorld().isClient)
-            return;
-        if (!(entity instanceof PlayerEntity player))
-            return;
-        InventoryUtility.updateBagSlots(player);
-        PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
-        if (entity instanceof ServerPlayerEntity serverPlayer) {
-            ServerPlayNetworking.send(serverPlayer, MinecraftVPPNetworking.ENABLE_SLOTS, packet);
-        }
-        if (DebugFlags.DEBUG_BAG_EVENTS) {
-            MinecraftVPP.LOGGER.info("Bag equipped: {} by {}", stack.getName().getString(),
-                    entity.getName().getString());
-        }
+        updateBagSlotsAndNotify(entity, stack);
     }
 
     @Override
     public void onUnequip(ItemStack stack, SlotReference slotRef, LivingEntity entity) {
-        if (entity.getWorld().isClient)
-            return;
+        updateBagSlotsAndNotify(entity, stack);
+    }
+
+    private void updateBagSlotsAndNotify(LivingEntity entity, ItemStack stack) {
         if (!(entity instanceof PlayerEntity player))
             return;
         InventoryUtility.updateBagSlots(player);
+        if (entity.getWorld().isClient)
+            return;
         PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
         if (entity instanceof ServerPlayerEntity serverPlayer) {
             ServerPlayNetworking.send(serverPlayer, MinecraftVPPNetworking.ENABLE_SLOTS, packet);
         }
         if (DebugFlags.DEBUG_BAG_EVENTS) {
-            MinecraftVPP.LOGGER.info("Bag unequipped: {} by {}", stack.getName().getString(),
+            MinecraftVPP.LOGGER.info("Bag {}: {} by {}", entity.getWorld().isClient ? "client" : "server",
+                    stack.getName().getString(),
                     entity.getName().getString());
         }
     }
