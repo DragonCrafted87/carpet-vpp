@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'fabric-loom' version '1.11-SNAPSHOT'
     id 'maven-publish'
 }
 version = project.mod_version
@@ -17,31 +17,24 @@ repositories {
         name = "Fabric"
         url = "https://maven.fabricmc.net/"
     }
-maven {
-name = "TerraformersMC"
-url = "https://maven.terraformersmc.com/"
-}
-maven {
-name = "Ladysnake Libs"
-url = 'https://maven.ladysnake.org/releases'
-}
     maven {
-        name = "Sleeping Town"
-        url = "https://repo.sleeping.town"
-        content {
-            includeGroup "com.unascribed"
-        }
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = 'https://maven.ladysnake.org/releases'
     }
 }
 loom {
     splitEnvironmentSourceSets()
     mods {
-        "template-mod" {
+        "vpp" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
     }
-    accessWidenerPath = file("src/main/resources/modid.accesswidener")
+    accessWidenerPath = file("src/main/resources/vpp.accesswidener")
 }
 fabricApi {
     configureDataGeneration()
@@ -64,20 +57,18 @@ processResources {
     inputs.property("minecraft_version", project.minecraft_version)
     inputs.property("trinkets_version", project.trinkets_version)
     inputs.property("emi_version", project.emi_version.split("\\+")[0])
-    inputs.property("lib39_version", project.lib39_version)
     filesMatching("fabric.mod.json") {
         expand(
             "version": project.version,
             "fabric_version": project.fabric_version.split("\\+")[0],
             "minecraft_version": project.minecraft_version,
             "trinkets_version": project.trinkets_version,
-            "emi_version": project.emi_version.split("\\+")[0],
-            "lib39_version": project.lib39_version
+            "emi_version": project.emi_version.split("\\+")[0]
         )
     }
 }
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+    it.options.release = 21
     it.options.encoding = 'UTF-8'
 }
 java {
@@ -85,8 +76,8 @@ java {
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 jar {
     from("LICENSE") {
