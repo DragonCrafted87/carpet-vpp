@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 public class BeaconChunkLoaderData extends PersistentState {
     public Set<BlockPos> activeBeacons = new HashSet<>();
+
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         NbtList list = new NbtList();
@@ -29,6 +30,7 @@ public class BeaconChunkLoaderData extends PersistentState {
         nbt.put("activeBeacons", list);
         return nbt;
     }
+
     public static BeaconChunkLoaderData createFromNbt(NbtCompound tag) {
         BeaconChunkLoaderData data = new BeaconChunkLoaderData();
         NbtList list = tag.getList("activeBeacons", 10); // 10 = NbtCompound
@@ -41,17 +43,20 @@ public class BeaconChunkLoaderData extends PersistentState {
         }
         return data;
     }
+
     public static BeaconChunkLoaderData get(ServerWorld world) {
         PersistentStateManager manager = world.getPersistentStateManager();
         Function<NbtCompound, BeaconChunkLoaderData> readFunction = BeaconChunkLoaderData::createFromNbt;
         Supplier<BeaconChunkLoaderData> supplier = BeaconChunkLoaderData::new;
         return manager.getOrCreate(readFunction, supplier, MinecraftVPP.MOD_ID);
     }
+
     public void addBeacon(BlockPos pos) {
         if (activeBeacons.add(pos)) {
             markDirty();
         }
     }
+
     public void removeBeacon(BlockPos pos) {
         if (activeBeacons.remove(pos)) {
             markDirty();

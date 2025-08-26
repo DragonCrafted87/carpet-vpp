@@ -10,12 +10,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ScreenHandler.class)
 public class ScreenHandlerMixin {
     @Redirect(method = "copySharedSlots", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Table;put(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", remap = false))
-    private Object vpp$skipNullInventories1(Table<Inventory, Integer, Integer> self, Object inventory, Object index, Object size) {
+    private Object vpp$skipNullInventories1(Table<Inventory, Integer, Integer> self, Object inventory, Object index,
+            Object size) {
         if (inventory == null) {
             return null;
         }
         return self.put((Inventory) inventory, (int) index, (int) size);
     }
+
     @Redirect(method = "copySharedSlots", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Table;get(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", remap = false))
     private Object vpp$skipNullInventories2(Table<Inventory, Integer, Integer> self, Object inventory, Object index) {
         if (inventory == null) {

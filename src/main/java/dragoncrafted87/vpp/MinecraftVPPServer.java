@@ -17,6 +17,7 @@ import java.util.Collection;
 public class MinecraftVPPServer implements DedicatedServerModInitializer {
     public static MinecraftServer minecraft_server;
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPPServer");
+
     @Override
     public void onInitializeServer() {
         LOGGER.info("MinecraftVPPServer initialized successfully");
@@ -39,6 +40,7 @@ public class MinecraftVPPServer implements DedicatedServerModInitializer {
             });
         }
     }
+
     private static void onServerLoaded(MinecraftServer ms) {
         minecraft_server = ms;
     }

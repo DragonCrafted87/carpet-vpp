@@ -21,6 +21,7 @@ import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
 
 public class InventoryUtility {
     public static final Identifier SLOT_TEXTURE = new Identifier("vpp", "textures/gui/slots.png");
+
     public static ItemStack findBagItem(PlayerEntity player, BaseBagItem.BagType type, boolean right) {
         ItemStack targetStack = ItemStack.EMPTY;
         Optional<TrinketComponent> _component = TrinketsApi.getTrinketComponent(player);
@@ -42,6 +43,7 @@ public class InventoryUtility {
         }
         return targetStack;
     }
+
     public static NbtList inventoryToTag(SimpleInventory inventory) {
         NbtList tag = new NbtList();
         for (int i = 0; i < inventory.size(); i++) {
@@ -52,6 +54,7 @@ public class InventoryUtility {
         }
         return tag;
     }
+
     public static void inventoryFromTag(NbtList tag, SimpleInventory inventory) {
         inventory.clear();
         tag.forEach(element -> {
@@ -61,6 +64,7 @@ public class InventoryUtility {
             inventory.setStack(slot, stack);
         });
     }
+
     public static void updateBagSlots(PlayerEntity player) {
         MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
         ItemStack satchelStack = findBagItem(player, BaseBagItem.BagType.SATCHEL, false);

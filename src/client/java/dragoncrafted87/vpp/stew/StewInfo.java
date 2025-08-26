@@ -18,6 +18,7 @@ import java.util.List;
 
 public class StewInfo {
     static MinecraftClient minecraft = MinecraftClient.getInstance();
+
     public static void onInjectTooltip(Object stackIn, List<Text> list) {
         ItemStack stack = (ItemStack) stackIn;
         list.addAll(getStewEffectTexts(stack));
@@ -25,6 +26,7 @@ public class StewInfo {
             MinecraftVPPClient.LOGGER.info("Added stew effects to tooltip for item: {}", stack.getName().getString());
         }
     }
+
     public static List<Text> getStewEffectTexts(ItemStack stack) {
         List<Text> effectsText = new ArrayList<>();
         if (stack != null && stack.getItem() == Items.SUSPICIOUS_STEW) {
