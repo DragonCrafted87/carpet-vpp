@@ -1,4 +1,5 @@
 package dragoncrafted87.vpp.mixin;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +22,7 @@ import dragoncrafted87.vpp.item.BaseBagItem;
 import dragoncrafted87.vpp.item.BaseBagItem.BagType;
 import dragoncrafted87.vpp.screen.BagSlot;
 import net.minecraft.network.encryption.PlayerPublicKey;
-@SuppressWarnings("deprecation")
+
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin {
     @Inject(method = "onDeath", at = @At("HEAD"))

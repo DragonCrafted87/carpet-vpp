@@ -13,7 +13,7 @@ def get_repo_root():
     except subprocess.CalledProcessError:
         raise RuntimeError("This script must be run inside a Git repository.")
 
-def find_files(root: Path, extensions: list[str]) -> list[Path]:
+def find_src_files(root: Path, extensions: list[str]) -> list[Path]:
     """Find all files with given extensions in the src folder recursively."""
     src_dir = root / 'src'
     if not src_dir.exists():
@@ -22,7 +22,17 @@ def find_files(root: Path, extensions: list[str]) -> list[Path]:
     files = []
     for ext in extensions:
         files.extend(src_dir.rglob(f'*{ext}'))
-    return sorted(files)  # Sort for consistent order
+    return files
+
+def find_root_files(root: Path) -> list[Path]:
+    """Find specific files at the repository root."""
+    file_names = ['build.gradle', 'gradle.properties', 'settings.gradle']
+    files = []
+    for fname in file_names:
+        file_path = root / fname
+        if file_path.exists():
+            files.append(file_path)
+    return files
 
 def get_language(ext: str) -> str:
     """Get the markdown codeblock language based on extension."""
@@ -30,6 +40,10 @@ def get_language(ext: str) -> str:
         return 'java'
     elif ext == '.json':
         return 'json'
+    elif ext == '.gradle':
+        return 'groovy'
+    elif ext == '.properties':
+        return 'properties'
     else:
         return ''
 
@@ -67,6 +81,8 @@ def create_codebase_md(root: Path, files: list[Path]):
 
 if __name__ == "__main__":
     repo_root = get_repo_root()
-    files = find_files(repo_root, ['.java', '.json'])
-    create_codebase_md(repo_root, files)
+    src_files = find_src_files(repo_root, ['.java', '.json'])
+    root_files = find_root_files(repo_root)
+    all_files = sorted(root_files + src_files, key=lambda p: str(p.relative_to(repo_root)))
+    create_codebase_md(repo_root, all_files)
     print(f"Created {repo_root / '.scratch' / 'codebase.md'}")
