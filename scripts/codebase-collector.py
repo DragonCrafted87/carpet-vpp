@@ -26,7 +26,7 @@ def find_src_files(root: Path, extensions: list[str]) -> list[Path]:
 
 def find_root_files(root: Path) -> list[Path]:
     """Find specific files at the repository root."""
-    file_names = ['build.gradle', 'gradle.properties', 'settings.gradle']
+    file_names = ['build.gradle', 'gradle.properties', 'settings.gradle', 'src/main/resources/vpp.accesswidener']
     files = []
     for fname in file_names:
         file_path = root / fname
@@ -71,7 +71,7 @@ def create_codebase_md(root: Path, files: list[Path]):
             lang = get_language(ext)
 
             # Write the relative path
-            md_file.write(f"## {relative_path}\n\n")
+            md_file.write(f"### {relative_path}\n\n")
 
             # Write the codeblock
             md_file.write(f"```{lang}\n")

@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
 version = project.mod_version
@@ -41,7 +41,7 @@ loom {
             sourceSet sourceSets.client
         }
     }
-    accessWidenerPath = file("src/main/resources/modid.accesswidener")
+    accessWidenerPath = file("src/main/resources/vpp.accesswidener")
 }
 fabricApi {
     configureDataGeneration()
@@ -57,6 +57,8 @@ dependencies {
     modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
     modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    // Add jsr305 to resolve missing Nullable annotation during source remapping
+    modCompileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
 processResources {
     inputs.property("version", project.version)
@@ -64,15 +66,13 @@ processResources {
     inputs.property("minecraft_version", project.minecraft_version)
     inputs.property("trinkets_version", project.trinkets_version)
     inputs.property("emi_version", project.emi_version.split("\\+")[0])
-    inputs.property("lib39_version", project.lib39_version)
     filesMatching("fabric.mod.json") {
         expand(
             "version": project.version,
             "fabric_version": project.fabric_version.split("\\+")[0],
             "minecraft_version": project.minecraft_version,
             "trinkets_version": project.trinkets_version,
-            "emi_version": project.emi_version.split("\\+")[0],
-            "lib39_version": project.lib39_version
+            "emi_version": project.emi_version.split("\\+")[0]
         )
     }
 }

@@ -1,16 +1,17 @@
 # Base Instruction Set: Collaborative Minecraft Mod Development Workflow
 
 ## 1. Project Setup Guidelines
-- **Mod Loader**: Use Forge or Fabric (specify in provided files; default to Forge for broader compatibility).
+- **Mod Loader**: Fabric.
+- **Minecraft Version**: Starting Version 1.19.2 updating to 1.19.4; ensure dependencies match.
 - **Build System**: Gradle-based buildscript. Include `build.gradle` and `settings.gradle` in code dump if customizing.
 - **Directory Structure**:
   - src/main/java/[package]/: Core mod classes.
-  - src/main/resources/: Assets, models, textures, and META-INF/mods.toml (Forge) or fabric.mod.json (Fabric).
-- **Dependencies**: Auto-include Minecraft, mod loader libs; add external like JEI for dev tools if needed.
+  - src/main/resources/: Assets, models, textures, and fabric.mod.json.
+- **Dependencies**: Auto-include Minecraft, Fabric loader libs; add external like JEI for dev tools if needed.
 
 ## 2. Code Priming and Editing Protocol
 - **User Input Format**: Prime with markdown blocks like:
-  ## path/to/file.java
+  ### path/to/file.java
   ```
   // Existing Java code here
   ```
@@ -26,15 +27,15 @@
 
 ## 3. Core Mod Development Patterns
 - **Mod Initialization**:
-  - Main class annotated with @Mod (Forge) or implementing ModInitializer (Fabric).
-  - Register events via MinecraftForge.EVENT_BUS (Forge) or equivalent.
+  - Main class implementing ModInitializer.
+  - Register events via Fabric's event system (e.g., RegisterCommandsCallback).
 - **Registry Handling**:
-  - Use DeferredRegister for blocks/items/entities to avoid load order issues.
-  - Example: Register a block in a dedicated RegistryEvents class.
+  - Use RegistryKey and RegistryEntry for blocks/items/entities to avoid load order issues.
+  - Example: Register a block in a dedicated initializer class.
 - **Feature Implementation**:
   - Items/Blocks: Extend Item/Block; override methods for behaviors.
-  - Events: Subscribe to Forge events (e.g., PlayerInteractEvent).
-  - Networking: Use SimpleChannel for custom packets if multiplayer.
+  - Events: Use Fabric's API events (e.g., UseBlockCallback).
+  - Networking: Use ServerPlayNetworking or ClientPlayNetworking for custom packets if multiplayer.
 - **Testing and Debugging**:
   - Run via Gradle tasks (runClient/runServer).
   - Check logs for crashes; suggest fixes like null checks or proper sidedness (client/server).
@@ -47,7 +48,8 @@
 
 ## 5. Escalation and Tools
 - If code execution/testing needed, describe in natural language (no direct tool calls here, but simulate outputs).
-- For external refs (e.g., Forge docs), note URLs but focus on self-contained edits.
+- For external refs (e.g., Fabric docs), note URLs but focus on self-contained edits.
+- For API details, look up online documentation (e.g., via web search or official Fabric wiki/API docs) as the version is newer than the AI's training data.
 - Refine this set via user feedback—e.g., add sections for data gen or recipes.
 
 ## 6. Code Dump

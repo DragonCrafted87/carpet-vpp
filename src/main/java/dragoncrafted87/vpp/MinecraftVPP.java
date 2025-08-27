@@ -6,7 +6,8 @@ import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.beacons.BeaconChunkLoaderData;
 import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -21,7 +22,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.netty.buffer.Unpooled;
@@ -34,19 +36,20 @@ public class MinecraftVPP implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPP");
     public static final int MAX_SATCHEL_SLOTS = 18;
     public static final int MAX_POUCH_SLOTS = 6;
-    public static final ItemGroup ITEM_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "itemgroup"),
-            () -> new ItemStack(MinecraftVPP.SATCHEL));
-    public static final Item SATCHEL_STRAP = new Item(new FabricItemSettings().group(ITEM_GROUP));
+    public static final ItemGroup ITEM_GROUP = FabricItemGroup.builder(new Identifier(MOD_ID, "itemgroup"))
+            .icon(() -> new ItemStack(MinecraftVPP.SATCHEL))
+            .build();
+    public static final Item SATCHEL_STRAP = new Item(new FabricItemSettings());
     public static final BaseBagItem SATCHEL = new BaseBagItem(
-            new FabricItemSettings().group(MinecraftVPP.ITEM_GROUP).maxCount(1), MAX_SATCHEL_SLOTS / 2,
+            new FabricItemSettings().maxCount(1), MAX_SATCHEL_SLOTS / 2,
             BagType.SATCHEL);
     public static final BaseBagItem UPGRADED_SATCHEL = new BaseBagItem(
-            new FabricItemSettings().group(MinecraftVPP.ITEM_GROUP).maxCount(1).rarity(Rarity.RARE), MAX_SATCHEL_SLOTS,
+            new FabricItemSettings().maxCount(1).rarity(Rarity.RARE), MAX_SATCHEL_SLOTS,
             BagType.SATCHEL);
     public static final BaseBagItem POUCH = new BaseBagItem(
-            new FabricItemSettings().group(MinecraftVPP.ITEM_GROUP).maxCount(1), MAX_POUCH_SLOTS / 2, BagType.POUCH);
+            new FabricItemSettings().maxCount(1), MAX_POUCH_SLOTS / 2, BagType.POUCH);
     public static final BaseBagItem UPGRADED_POUCH = new BaseBagItem(
-            new FabricItemSettings().group(MinecraftVPP.ITEM_GROUP).maxCount(1).rarity(Rarity.RARE), MAX_POUCH_SLOTS,
+            new FabricItemSettings().maxCount(1).rarity(Rarity.RARE), MAX_POUCH_SLOTS,
             BagType.POUCH);
     public static final ChunkTicketType<BlockPos> BEACON = ChunkTicketType.create("vpp_beacon",
             Comparator.comparingLong(BlockPos::asLong), 300); // 15 sec expiry
@@ -54,11 +57,18 @@ public class MinecraftVPP implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("MinecraftVPP initialized successfully");
-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "satchel_strap"), SATCHEL_STRAP);
-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "satchel"), SATCHEL);
-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "pouch"), POUCH);
-        Registry.register(Registry.ITEM, new Identifier(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
+        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "satchel_strap"), SATCHEL_STRAP);
+        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "satchel"), SATCHEL);
+        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
+        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "pouch"), POUCH);
+        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
+        ItemGroupEvents.modifyEntriesEvent(ITEM_GROUP).register(content -> {
+            content.add(SATCHEL_STRAP);
+            content.add(SATCHEL);
+            content.add(UPGRADED_SATCHEL);
+            content.add(POUCH);
+            content.add(UPGRADED_POUCH);
+        });
         ServerWorldEvents.LOAD.register((server, world) -> {
             BeaconChunkLoaderData data = BeaconChunkLoaderData.get(world);
             Set<BlockPos> toRemove = new HashSet<>();

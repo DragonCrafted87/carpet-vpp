@@ -1,5 +1,4 @@
 package dragoncrafted87.vpp.mixin.client;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import dragoncrafted87.vpp.bags.BaseBagItem;
 import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
@@ -17,13 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends AbstractInventoryScreen<PlayerScreenHandler> {
     private InventoryScreenMixin() {
         super(null, null, null);
     }
-
     @Inject(method = "isClickOutsideBounds", at = @At("TAIL"), cancellable = true)
     private void vpp$adjustOutsideBounds(double mouseX, double mouseY, int left, int top, int button,
             CallbackInfoReturnable<Boolean> callbackInfo) {
@@ -61,7 +58,6 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
             }
         }
     }
-
     @Inject(method = "drawBackground", at = @At("TAIL"))
     private void vpp$drawBagSlots(MatrixStack matrices, float delta, int mouseX, int mouseY, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -75,7 +71,7 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
             if (!backStack.isEmpty()) {
                 BaseBagItem bagItem = (BaseBagItem) backStack.getItem();
                 int slots = bagItem.getSlotCount();
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderTexture(0, InventoryUtility.SLOT_TEXTURE);
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 int x = screenX;
