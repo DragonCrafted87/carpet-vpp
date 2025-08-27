@@ -3,11 +3,10 @@ package dragoncrafted87.vpp.mixin;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.EndPortalFrameBlock;
 import net.minecraft.block.MapColor;
-import net.minecraft.block.Material;
 import net.minecraft.block.PillarBlock;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
@@ -23,29 +22,26 @@ public class BlocksMixin {
     @Redirect(slice = @Slice(from = @At(value = "CONSTANT", args = {
             "stringValue=bedrock"
     }, ordinal = 0)), at = @At(value = "NEW", target = "Lnet/minecraft/block/Block;*", ordinal = 0), method = "<clinit>")
-    public static Block bedrock(AbstractBlock.Settings settings) {
-        return new Block(AbstractBlock.Settings.of(Material.STONE).strength(75.0f, 2400.0f).dropsNothing()
+    private static Block bedrock(AbstractBlock.Settings settings) {
+        return new Block(AbstractBlock.Settings.create().mapColor(MapColor.STONE_GRAY).sounds(BlockSoundGroup.STONE).strength(75.0f, 2400.0f).dropsNothing()
                 .allowsSpawning(BlocksMixin::never));
     }
-
     @Redirect(slice = @Slice(from = @At(value = "CONSTANT", args = {
             "stringValue=deepslate"
     }, ordinal = 0)), at = @At(value = "NEW", target = "Lnet/minecraft/block/PillarBlock;*", ordinal = 0), method = "<clinit>")
-    public static PillarBlock deepslate(AbstractBlock.Settings settings) {
-        return new PillarBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.DEEPSLATE_GRAY).requiresTool()
+    private static PillarBlock deepslate(AbstractBlock.Settings settings) {
+        return new PillarBlock(AbstractBlock.Settings.create().mapColor(MapColor.DEEPSLATE_GRAY).requiresTool()
                 .strength(1.63f, 6.0f).sounds(BlockSoundGroup.DEEPSLATE));
     }
-
     @Redirect(slice = @Slice(from = @At(value = "CONSTANT", args = {
             "stringValue=end_portal_frame"
     }, ordinal = 0)), at = @At(value = "NEW", target = "Lnet/minecraft/block/EndPortalFrameBlock;*", ordinal = 0), method = "<clinit>")
-    public static EndPortalFrameBlock end_portal_frame(AbstractBlock.Settings settings) {
-        return new EndPortalFrameBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.GREEN)
+    private static EndPortalFrameBlock end_portal_frame(AbstractBlock.Settings settings) {
+        return new EndPortalFrameBlock(AbstractBlock.Settings.create().mapColor(MapColor.GREEN)
                 .sounds(BlockSoundGroup.GLASS).luminance((state) -> {
                     return 1;
                 }).strength(6.0F, 2400.0F));
     }
-
     @Shadow
     public static Boolean never(BlockState state, BlockView world, BlockPos pos, EntityType<?> type) {
         return false;

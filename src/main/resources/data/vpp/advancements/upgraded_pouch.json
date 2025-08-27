@@ -18,6 +18,18 @@
                 ]
             }
         },
+        "has_leather": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "minecraft:leather"
+                        ]
+                    }
+                ]
+            }
+        },
         "has_pouch": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
@@ -40,6 +52,7 @@
     "requirements": [
         [
             "has_diamond",
+            "has_leather",
             "has_pouch",
             "has_the_recipe"
         ]

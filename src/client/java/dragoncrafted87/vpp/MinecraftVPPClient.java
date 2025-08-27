@@ -17,7 +17,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
@@ -66,7 +65,7 @@ public class MinecraftVPPClient implements ClientModInitializer {
             }
         });
         // Replacement for InGameHudMixin: Add stew effects to held item HUD
-        HudRenderCallback.EVENT.register((matrices, tickDelta) -> {
+        HudRenderCallback.EVENT.register((context, tickDelta) -> {
             MinecraftClient client = MinecraftClient.getInstance();
             ItemStack currentStack = client.player.getMainHandStack(); // Check main hand; adjust for offhand if needed
             int heldItemTooltipFade = ((InGameHudAccessor) client.inGameHud).getHeldItemTooltipFade();
@@ -90,7 +89,7 @@ public class MinecraftVPPClient implements ClientModInitializer {
                 if (opacity > 0) {
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
-                    DrawableHelper.fill(matrices, j - 2, hotbarOffset - 2, j + width + 2, hotbarOffset + 9 + 2,
+                    context.fill(j - 2, hotbarOffset - 2, j + width + 2, hotbarOffset + 9 + 2,
                             client.options.getTextBackgroundColor(0));
                     List<Text> effectTexts = StewInfo.getStewEffectTexts(currentStack);
                     if (!effectTexts.isEmpty() && DebugFlags.DEBUG_STEW_INFO) {
@@ -99,8 +98,8 @@ public class MinecraftVPPClient implements ClientModInitializer {
                     for (int i = 0; i < effectTexts.size(); i++) {
                         Text text = effectTexts.get(i);
                         j = (client.getWindow().getScaledWidth() - client.textRenderer.getWidth(text)) / 2;
-                        client.textRenderer.drawWithShadow(matrices, text, (float) j,
-                                (float) (hotbarOffset - (i * 14) - 14), 13421772 + (opacity << 24));
+                        context.drawTextWithShadow(client.textRenderer, text, j,
+                                hotbarOffset - (i * 14) - 14, 13421772 + (opacity << 24));
                     }
                     RenderSystem.disableBlend();
                 }

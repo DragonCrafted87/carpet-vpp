@@ -4,9 +4,7 @@ plugins {
 }
 version = project.mod_version
 group = project.maven_group
-base {
-    archivesName = project.archives_base_name
-}
+String archivesBaseName = project.archives_base_name
 repositories {
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
@@ -60,19 +58,25 @@ dependencies {
     // Add jsr305 to resolve missing Nullable annotation during source remapping
     modCompileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
+
+def fabric_version_short = project.fabric_version.split("\\+")[0]
+def minecraft_version_val = project.minecraft_version
+def trinkets_version_val = project.trinkets_version
+def emi_version_short = project.emi_version.split("\\+")[0]
+
 processResources {
     inputs.property("version", project.version)
-    inputs.property("fabric_version", project.fabric_version.split("\\+")[0])
-    inputs.property("minecraft_version", project.minecraft_version)
-    inputs.property("trinkets_version", project.trinkets_version)
-    inputs.property("emi_version", project.emi_version.split("\\+")[0])
+    inputs.property("fabric_version", fabric_version_short)
+    inputs.property("minecraft_version", minecraft_version_val)
+    inputs.property("trinkets_version", trinkets_version_val)
+    inputs.property("emi_version", emi_version_short)
     filesMatching("fabric.mod.json") {
         expand(
             "version": project.version,
-            "fabric_version": project.fabric_version.split("\\+")[0],
-            "minecraft_version": project.minecraft_version,
-            "trinkets_version": project.trinkets_version,
-            "emi_version": project.emi_version.split("\\+")[0]
+            "fabric_version": fabric_version_short,
+            "minecraft_version": minecraft_version_val,
+            "trinkets_version": trinkets_version_val,
+            "emi_version": emi_version_short
         )
     }
 }
@@ -85,12 +89,12 @@ java {
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}"}
+        rename { "${it}_${archivesBaseName}"}
     }
 }
 // configure the maven publication

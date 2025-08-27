@@ -6,5 +6,7 @@
     "item.vpp.pouch": "Pouch",
     "item.vpp.upgraded_pouch": "Upgraded Pouch",
     "trinkets.slot.legs.pouch": "Pouch",
-    "tooltip.vpp.slots": "Holds %d items"
+    "tooltip.vpp.slots": "Holds %d items",
+    "tag.item.trinkets.chest.back": "Back",
+    "tag.item.trinkets.legs.pouch": "Pouch"
 }

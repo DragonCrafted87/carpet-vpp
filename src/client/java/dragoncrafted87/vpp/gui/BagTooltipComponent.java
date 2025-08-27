@@ -1,51 +1,85 @@
 package dragoncrafted87.vpp.gui;
+
 import com.google.common.math.IntMath;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.bags.item.BagTooltipData;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import java.math.RoundingMode;
+
 public class BagTooltipComponent implements TooltipComponent {
     private final DefaultedList<ItemStack> inventory;
     private final int slotCount;
+
     public BagTooltipComponent(BagTooltipData data) {
         this.inventory = data.inventory();
         this.slotCount = data.slotCount();
     }
+
     @Override
     public int getHeight() {
         return (18 * IntMath.divide(slotCount, 6, RoundingMode.UP)) + 2;
     }
+
     @Override
     public int getWidth(TextRenderer textRenderer) {
         return 18 * (slotCount < 6 ? slotCount : 6);
     }
+
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer) {
-        matrices.push();
+    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
         int originalX = x;
+        // Draw all slots first
+        int tx = x;
+        int ty = y;
         for (int i = 0; i < slotCount; i++) {
-            ItemStack itemStack = this.inventory.get(i);
-            this.drawSlot(matrices, x, y);
-            itemRenderer.renderInGui(matrices, itemStack, x + 1, y + 1);
-            itemRenderer.renderGuiItemOverlay(matrices, textRenderer, itemStack, x + 1, y + 1);
-            x += 18;
+            this.drawSlot(context, tx, ty);
+            tx += 18;
             if ((i + 1) % 6 == 0) {
-                y += 18;
-                x = originalX;
+                ty += 18;
+                tx = originalX;
             }
         }
-        matrices.pop();
+        // Draw all items
+        context.getMatrices().push();
+        context.getMatrices().translate(0.0f, 0.0f, 150.0f);
+        tx = x;
+        ty = y;
+        for (int i = 0; i < slotCount; i++) {
+            ItemStack itemStack = this.inventory.get(i);
+            context.drawItem(itemStack, tx + 1, ty + 1);
+            tx += 18;
+            if ((i + 1) % 6 == 0) {
+                ty += 18;
+                tx = originalX;
+            }
+        }
+        context.getMatrices().pop();
+        // Draw all stack counts
+        context.getMatrices().push();
+        context.getMatrices().translate(0.0f, 0.0f, 250.0f);
+        tx = x;
+        ty = y;
+        for (int i = 0; i < slotCount; i++) {
+            ItemStack itemStack = this.inventory.get(i);
+            if (itemStack.getCount() > 1) {
+                String count = String.valueOf(itemStack.getCount());
+                context.drawTextWithShadow(textRenderer, count, tx + 19 - 2 - textRenderer.getWidth(count), ty + 6 + 3,
+                        16777215);
+            }
+            tx += 18;
+            if ((i + 1) % 6 == 0) {
+                ty += 18;
+                tx = originalX;
+            }
+        }
+        context.getMatrices().pop();
     }
-    private void drawSlot(MatrixStack matrices, int x, int y) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, InventoryUtility.SLOT_TEXTURE);
-        DrawableHelper.drawTexture(matrices, x, y, 7f, 7f, 18, 18, 256, 256);
+
+    private void drawSlot(DrawContext context, int x, int y) {
+        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7.0f, 7.0f, 18, 18, 256, 256);
     }
 }

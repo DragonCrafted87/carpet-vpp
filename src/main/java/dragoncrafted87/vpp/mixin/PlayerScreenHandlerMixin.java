@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Lower priority to take priority over other mods
-@Mixin(value = PlayerScreenHandler.class, priority = 950)
+// Higher priority to apply after trinkets
+@Mixin(value = PlayerScreenHandler.class, priority = 1100)
 public abstract class PlayerScreenHandlerMixin extends ScreenHandler implements MinecraftVPPScreenHandler {
     protected PlayerScreenHandlerMixin() {
         super(null, 0);
@@ -36,6 +36,7 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler implements 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void vpp$addSlots(PlayerInventory inventory, boolean onServer, PlayerEntity owner,
             CallbackInfo callbackInfo) {
+        MinecraftVPP.LOGGER.info("Adding bag slots to PlayerScreenHandler, onServer: " + onServer);
         // satchel
         int x = 8;
         int y = 168;

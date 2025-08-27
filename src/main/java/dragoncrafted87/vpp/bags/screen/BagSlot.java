@@ -43,31 +43,44 @@ public class BagSlot extends Slot {
 
     @Override
     public ItemStack getStack() {
-        return enabled && this.inventory != null ? this.inventory.getStack(this.index) : ItemStack.EMPTY;
+        if (!enabled || inventory == null)
+            return ItemStack.EMPTY;
+        return this.inventory.getStack(this.index);
     }
 
     @Override
     public void setStack(ItemStack stack) {
-        if (enabled && this.inventory != null) {
-            this.inventory.setStack(this.index, stack);
-            this.markDirty();
-        }
+        if (!enabled || inventory == null)
+            return;
+        this.inventory.setStack(this.index, stack);
+        this.markDirty();
+    }
+
+    @Override
+    public void setStackNoCallbacks(ItemStack stack) {
+        if (!enabled || inventory == null)
+            return;
+        this.inventory.setStack(this.index, stack);
     }
 
     @Override
     public void markDirty() {
-        if (enabled && this.inventory != null) {
-            this.inventory.markDirty();
-        }
+        if (!enabled || inventory == null)
+            return;
+        this.inventory.markDirty();
     }
 
     @Override
     public ItemStack takeStack(int amount) {
-        return enabled && this.inventory != null ? this.inventory.removeStack(this.index, amount) : ItemStack.EMPTY;
+        if (!enabled || inventory == null)
+            return ItemStack.EMPTY;
+        return this.inventory.removeStack(this.index, amount);
     }
 
     @Override
     public int getMaxItemCount() {
-        return enabled && this.inventory != null ? this.inventory.getMaxCountPerStack() : 0;
+        if (!enabled || inventory == null)
+            return 0;
+        return this.inventory.getMaxCountPerStack();
     }
 }

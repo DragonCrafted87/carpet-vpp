@@ -4,13 +4,12 @@ import dragoncrafted87.vpp.bags.BaseBagItem;
 import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.client.gui.DrawContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -59,7 +58,7 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
         }
     }
     @Inject(method = "drawBackground", at = @At("TAIL"))
-    private void vpp$drawBagSlots(MatrixStack matrices, float delta, int mouseX, int mouseY, CallbackInfo ci) {
+    private void vpp$drawBagSlots(DrawContext context, float delta, int mouseX, int mouseY, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
             int screenX = this.x;
@@ -72,11 +71,10 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                 BaseBagItem bagItem = (BaseBagItem) backStack.getItem();
                 int slots = bagItem.getSlotCount();
                 RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-                RenderSystem.setShaderTexture(0, InventoryUtility.SLOT_TEXTURE);
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 int x = screenX;
                 int y = screenY + backgroundHeight - 3;
-                DrawableHelper.drawTexture(matrices, x, y, 0f, 32f, backgroundWidth, 4, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 0f, 32f, backgroundWidth, 4, 256, 256);
                 y += 4;
                 float u = 0;
                 float v = 36;
@@ -84,20 +82,20 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                     if (slot % 9 == 0) {
                         x = screenX;
                         u = 0;
-                        DrawableHelper.drawTexture(matrices, x, y, u, v, 7, 18, 256, 256);
+                        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, u, v, 7, 18, 256, 256);
                         x += 7;
                         u += 7;
                     }
-                    DrawableHelper.drawTexture(matrices, x, y, u, v, 18, 18, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, u, v, 18, 18, 256, 256);
                     x += 18;
                     u += 18;
                     if ((slot + 1) % 9 == 0) {
-                        DrawableHelper.drawTexture(matrices, x, y, u, v, 7, 18, 256, 256);
+                        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, u, v, 7, 18, 256, 256);
                         y += 18;
                     }
                 }
                 x = screenX;
-                DrawableHelper.drawTexture(matrices, x, y, 0f, 54f, backgroundWidth, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 0f, 54f, backgroundWidth, 7, 256, 256);
             }
             // Draw left pouch slots
             ItemStack leftPouchStack = InventoryUtility.findBagItem(client.player, BagType.POUCH, false);
@@ -107,21 +105,21 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                 int columns = (int) Math.ceil(slots / 3);
                 int x = screenX;
                 int y = screenY + 137;
-                RenderSystem.setShaderTexture(0, InventoryUtility.SLOT_TEXTURE);
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DrawableHelper.drawTexture(matrices, x, y, 18f, 25f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 18f, 25f, 7, 7, 256, 256);
                 for (int i = 0; i < columns; i++) {
                     x -= 11;
-                    DrawableHelper.drawTexture(matrices, x, y, 7f, 25f, 11, 7, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 25f, 11, 7, 256, 256);
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
                         x -= 7;
-                        DrawableHelper.drawTexture(matrices, x, y, 7f, 25f, 7, 7, 256, 256);
+                        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 25f, 7, 7, 256, 256);
                     }
                 }
                 x -= 7;
-                DrawableHelper.drawTexture(matrices, x, y, 0f, 25f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 0f, 25f, 7, 7, 256, 256);
                 x = screenX + 7;
                 y -= 54;
                 for (int slot = 0; slot < slots; slot++) {
@@ -130,29 +128,29 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                         y += 54;
                     }
                     y -= 18;
-                    DrawableHelper.drawTexture(matrices, x, y, 7f, 7f, 18, 18, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 7f, 18, 18, 256, 256);
                 }
                 x -= 7;
                 y += 54;
                 for (int i = 0; i < 3; i++) {
                     y -= 18;
-                    DrawableHelper.drawTexture(matrices, x, y, 0f, 7f, 7, 18, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 0f, 7f, 7, 18, 256, 256);
                 }
                 x = screenX;
                 y -= 7;
-                DrawableHelper.drawTexture(matrices, x, y, 18f, 0f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 18f, 0f, 7, 7, 256, 256);
                 for (int i = 0; i < columns; i++) {
                     x -= 11;
-                    DrawableHelper.drawTexture(matrices, x, y, 7f, 0f, 11, 7, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 0f, 11, 7, 256, 256);
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
                         x -= 7;
-                        DrawableHelper.drawTexture(matrices, x, y, 7f, 0f, 7, 7, 256, 256);
+                        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 0f, 7, 7, 256, 256);
                     }
                 }
                 x -= 7;
-                DrawableHelper.drawTexture(matrices, x, y, 0f, 0f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 0f, 0f, 7, 7, 256, 256);
             }
             // Draw right pouch slots (similar logic)
             ItemStack rightPouchStack = InventoryUtility.findBagItem(client.player, BagType.POUCH, true);
@@ -162,21 +160,21 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                 int columns = (int) Math.ceil(slots / 3);
                 int x = screenX + backgroundWidth - 7;
                 int y = screenY + 137;
-                RenderSystem.setShaderTexture(0, InventoryUtility.SLOT_TEXTURE);
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DrawableHelper.drawTexture(matrices, x, y, 25f, 25f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 25f, 25f, 7, 7, 256, 256);
                 x += 7;
                 for (int i = 0; i < columns; i++) {
-                    DrawableHelper.drawTexture(matrices, x, y, 7f, 25f, 11, 7, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 25f, 11, 7, 256, 256);
                     x += 11;
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
-                        DrawableHelper.drawTexture(matrices, x, y, 7f, 25f, 7, 7, 256, 256);
+                        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 25f, 7, 7, 256, 256);
                         x += 7;
                     }
                 }
-                DrawableHelper.drawTexture(matrices, x, y, 32f, 25f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 32f, 25f, 7, 7, 256, 256);
                 x = screenX + backgroundWidth - 25;
                 y -= 54;
                 for (int slot = 0; slot < slots; slot++) {
@@ -185,29 +183,29 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                         y += 54;
                     }
                     y -= 18;
-                    DrawableHelper.drawTexture(matrices, x, y, 7f, 7f, 18, 18, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 7f, 18, 18, 256, 256);
                 }
                 x += 18;
                 y += 54;
                 for (int i = 0; i < 3; i++) {
                     y -= 18;
-                    DrawableHelper.drawTexture(matrices, x, y, 32f, 7f, 7, 18, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 32f, 7f, 7, 18, 256, 256);
                 }
                 x = screenX + backgroundWidth - 7;
                 y -= 7;
-                DrawableHelper.drawTexture(matrices, x, y, 25f, 0f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 25f, 0f, 7, 7, 256, 256);
                 x += 7;
                 for (int i = 0; i < columns; i++) {
-                    DrawableHelper.drawTexture(matrices, x, y, 7f, 0f, 11, 7, 256, 256);
+                    context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 0f, 11, 7, 256, 256);
                     x += 11;
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
-                        DrawableHelper.drawTexture(matrices, x, y, 7f, 0f, 7, 7, 256, 256);
+                        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7f, 0f, 7, 7, 256, 256);
                         x += 7;
                     }
                 }
-                DrawableHelper.drawTexture(matrices, x, y, 32f, 0f, 7, 7, 256, 256);
+                context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 32f, 0f, 7, 7, 256, 256);
             }
         }
     }

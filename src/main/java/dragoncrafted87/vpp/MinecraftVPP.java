@@ -17,13 +17,16 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.Registries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.netty.buffer.Unpooled;
@@ -36,9 +39,8 @@ public class MinecraftVPP implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPP");
     public static final int MAX_SATCHEL_SLOTS = 18;
     public static final int MAX_POUCH_SLOTS = 6;
-    public static final ItemGroup ITEM_GROUP = FabricItemGroup.builder(new Identifier(MOD_ID, "itemgroup"))
-            .icon(() -> new ItemStack(MinecraftVPP.SATCHEL))
-            .build();
+    public static final RegistryKey<ItemGroup> ITEM_GROUP_KEY = RegistryKey.of(RegistryKeys.ITEM_GROUP,
+            new Identifier(MOD_ID, "itemgroup"));
     public static final Item SATCHEL_STRAP = new Item(new FabricItemSettings());
     public static final BaseBagItem SATCHEL = new BaseBagItem(
             new FabricItemSettings().maxCount(1), MAX_SATCHEL_SLOTS / 2,
@@ -62,7 +64,12 @@ public class MinecraftVPP implements ModInitializer {
         Registry.register(Registries.ITEM, new Identifier(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
         Registry.register(Registries.ITEM, new Identifier(MOD_ID, "pouch"), POUCH);
         Registry.register(Registries.ITEM, new Identifier(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
-        ItemGroupEvents.modifyEntriesEvent(ITEM_GROUP).register(content -> {
+        Registry.register(Registries.ITEM_GROUP, ITEM_GROUP_KEY,
+                FabricItemGroup.builder()
+                        .displayName(Text.translatable("itemGroup.vpp.itemgroup"))
+                        .icon(() -> new ItemStack(MinecraftVPP.SATCHEL))
+                        .build());
+        ItemGroupEvents.modifyEntriesEvent(ITEM_GROUP_KEY).register(content -> {
             content.add(SATCHEL_STRAP);
             content.add(SATCHEL);
             content.add(UPGRADED_SATCHEL);
