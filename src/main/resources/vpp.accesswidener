@@ -3,3 +3,5 @@ accessWidener v2 named
 mutable field net/minecraft/block/Blocks BEDROCK Lnet/minecraft/block/Block;
 mutable field net/minecraft/block/Blocks DEEPSLATE Lnet/minecraft/block/Block;
 mutable field net/minecraft/block/Blocks END_PORTAL_FRAME Lnet/minecraft/block/Block;
+
+accessible field net/minecraft/util/Rarity formatting Lnet/minecraft/util/Formatting;

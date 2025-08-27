@@ -5,16 +5,11 @@ import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
-
 import java.util.Optional;
-
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
@@ -44,27 +39,6 @@ public class InventoryUtility {
         return targetStack;
     }
 
-    public static NbtList inventoryToTag(SimpleInventory inventory) {
-        NbtList tag = new NbtList();
-        for (int i = 0; i < inventory.size(); i++) {
-            NbtCompound stackTag = new NbtCompound();
-            stackTag.putInt("Slot", i);
-            stackTag.put("Stack", inventory.getStack(i).writeNbt(new NbtCompound()));
-            tag.add(stackTag);
-        }
-        return tag;
-    }
-
-    public static void inventoryFromTag(NbtList tag, SimpleInventory inventory) {
-        inventory.clear();
-        tag.forEach(element -> {
-            NbtCompound stackTag = (NbtCompound) element;
-            int slot = stackTag.getInt("Slot");
-            ItemStack stack = ItemStack.fromNbt(stackTag.getCompound("Stack"));
-            inventory.setStack(slot, stack);
-        });
-    }
-
     public static void updateBagSlots(PlayerEntity player) {
         MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
         ItemStack satchelStack = findBagItem(player, BaseBagItem.BagType.SATCHEL, false);
@@ -76,7 +50,7 @@ public class InventoryUtility {
         }
         if (!satchelStack.isEmpty()) {
             BaseBagItem satchelItem = (BaseBagItem) satchelStack.getItem();
-            Inventory satchelInv = satchelItem.getInventory(satchelStack);
+            Inventory satchelInv = satchelItem.getInventory(satchelStack, player);
             for (int i = 0; i < satchelItem.getSlotCount(); i++) {
                 BagSlot slot = satchelSlots.get(i);
                 slot.setInventory(satchelInv);
@@ -92,7 +66,7 @@ public class InventoryUtility {
         }
         if (!leftPouchStack.isEmpty()) {
             BaseBagItem leftPouchItem = (BaseBagItem) leftPouchStack.getItem();
-            Inventory leftPouchInv = leftPouchItem.getInventory(leftPouchStack);
+            Inventory leftPouchInv = leftPouchItem.getInventory(leftPouchStack, player);
             for (int i = 0; i < leftPouchItem.getSlotCount(); i++) {
                 BagSlot slot = leftPouchSlots.get(i);
                 slot.setInventory(leftPouchInv);
@@ -108,7 +82,7 @@ public class InventoryUtility {
         }
         if (!rightPouchStack.isEmpty()) {
             BaseBagItem rightPouchItem = (BaseBagItem) rightPouchStack.getItem();
-            Inventory rightPouchInv = rightPouchItem.getInventory(rightPouchStack);
+            Inventory rightPouchInv = rightPouchItem.getInventory(rightPouchStack, player);
             for (int i = 0; i < rightPouchItem.getSlotCount(); i++) {
                 BagSlot slot = rightPouchSlots.get(i);
                 slot.setInventory(rightPouchInv);

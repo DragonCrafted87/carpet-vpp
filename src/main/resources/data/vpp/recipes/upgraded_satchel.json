@@ -10,6 +10,6 @@
         "item": "minecraft:diamond"
     },
     "result": {
-        "item": "vpp:upgraded_satchel"
+        "id": "vpp:upgraded_satchel"
     }
 }

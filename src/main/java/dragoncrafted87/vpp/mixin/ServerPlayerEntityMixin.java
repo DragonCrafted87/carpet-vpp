@@ -6,11 +6,9 @@ import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.GameRules;
@@ -36,8 +34,7 @@ public class ServerPlayerEntityMixin {
                     slot.setInventory(null);
                     slot.setEnabled(false);
                 }
-                PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
-                ServerPlayNetworking.send(player, MinecraftVPPNetworking.ENABLE_SLOTS, packet);
+                ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
             }
             ItemStack leftPouchStack = InventoryUtility.findBagItem(player, BagType.POUCH, false);
             if (!leftPouchStack.isEmpty()) {
@@ -49,8 +46,7 @@ public class ServerPlayerEntityMixin {
                     slot.setInventory(null);
                     slot.setEnabled(false);
                 }
-                PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
-                ServerPlayNetworking.send(player, MinecraftVPPNetworking.ENABLE_SLOTS, packet);
+                ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
             }
             ItemStack rightPouchStack = InventoryUtility.findBagItem(player, BagType.POUCH, true);
             if (!rightPouchStack.isEmpty()) {
@@ -62,8 +58,7 @@ public class ServerPlayerEntityMixin {
                     slot.setInventory(null);
                     slot.setEnabled(false);
                 }
-                PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
-                ServerPlayNetworking.send(player, MinecraftVPPNetworking.ENABLE_SLOTS, packet);
+                ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
             }
         }
     }

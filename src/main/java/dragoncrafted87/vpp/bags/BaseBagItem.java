@@ -7,34 +7,22 @@ import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketItem;
 import dev.emi.trinkets.api.TrinketsApi;
-import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.item.TooltipData;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-
-import dragoncrafted87.vpp.bags.item.BagTooltipData;
-
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import java.util.List;
 import java.util.Optional;
 
 public class BaseBagItem extends TrinketItem {
-    private static final String ITEMS_KEY = "Items";
-    private final int slots;
-    private final BagType type;
+    private int slots;
+    private BagType type;
 
     public BaseBagItem(Settings settings, int slots, BagType type) {
         super(settings);
@@ -56,41 +44,18 @@ public class BaseBagItem extends TrinketItem {
         return this.type;
     }
 
-    @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        super.appendTooltip(stack, world, tooltip, context);
-        tooltip.add(Text
-                .translatable("tooltip.vpp.slots", Text.literal(String.valueOf(this.slots)).formatted(Formatting.BLUE))
-                .formatted(Formatting.GRAY));
-    }
-
     public Inventory getInventory(ItemStack stack) {
-        SimpleInventory inventory = new SimpleInventory(this.slots) {
-            @Override
-            public void markDirty() {
-                stack.getOrCreateNbt().put(ITEMS_KEY, InventoryUtility.inventoryToTag(this));
-                super.markDirty();
-            }
-        };
-        NbtCompound compound = stack.getOrCreateNbt();
-        if (!compound.contains(ITEMS_KEY)) {
-            compound.put(ITEMS_KEY, new NbtList());
-        }
-        NbtList items = compound.getList(ITEMS_KEY, 10);
-        InventoryUtility.inventoryFromTag(items, inventory);
-        return inventory;
+        return getInventory(stack, null);
     }
 
-    @Override
-    public Optional<TooltipData> getTooltipData(ItemStack stack) {
-        DefaultedList<ItemStack> stacks = DefaultedList.of();
-        Inventory inventory = getInventory(stack);
-        for (int i = 0; i < slots; i++) {
-            stacks.add(inventory.getStack(i));
+    public Inventory getInventory(ItemStack stack, PlayerEntity player) {
+        ContainerComponent comp = stack.getOrDefault(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT);
+        BagInventory inventory = new BagInventory(this.slots, stack, player);
+        List<ItemStack> list = comp.stream().toList();
+        for (int i = 0; i < this.slots; i++) {
+            inventory.setStack(i, i < list.size() ? list.get(i) : ItemStack.EMPTY);
         }
-        if (stacks.stream().allMatch(ItemStack::isEmpty))
-            return Optional.empty();
-        return Optional.of(new BagTooltipData(stacks, slots));
+        return inventory;
     }
 
     @Override
@@ -109,9 +74,8 @@ public class BaseBagItem extends TrinketItem {
         InventoryUtility.updateBagSlots(player);
         if (entity.getWorld().isClient)
             return;
-        PacketByteBuf packet = new PacketByteBuf(Unpooled.buffer());
         if (entity instanceof ServerPlayerEntity serverPlayer) {
-            ServerPlayNetworking.send(serverPlayer, MinecraftVPPNetworking.ENABLE_SLOTS, packet);
+            ServerPlayNetworking.send(serverPlayer, new MinecraftVPPNetworking.EnableSlotsPayload());
         }
         if (DebugFlags.DEBUG_BAG_EVENTS) {
             MinecraftVPP.LOGGER.info("Bag {}: {} by {}", entity.getWorld().isClient ? "client" : "server",
@@ -141,5 +105,32 @@ public class BaseBagItem extends TrinketItem {
     public enum BagType {
         SATCHEL,
         POUCH
+    }
+
+    private static class BagInventory extends SimpleInventory {
+        private final ItemStack bagStack;
+        private final PlayerEntity player;
+
+        public BagInventory(int size, ItemStack bagStack, PlayerEntity player) {
+            super(size);
+            this.bagStack = bagStack;
+            this.player = player;
+        }
+
+        @Override
+        public void markDirty() {
+            DefaultedList<ItemStack> stacks = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+            for (int i = 0; i < this.size(); i++) {
+                stacks.set(i, this.getStack(i));
+            }
+            if (this.player != null && !this.player.getWorld().isClient) {
+                bagStack.set(DataComponentTypes.CONTAINER, ContainerComponent.fromStacks(stacks));
+                if (DebugFlags.DEBUG_BAG_EVENTS) {
+                    MinecraftVPP.LOGGER.info("Updated bag stack component for player {}",
+                            player.getName().getString());
+                }
+            }
+            super.markDirty();
+        }
     }
 }

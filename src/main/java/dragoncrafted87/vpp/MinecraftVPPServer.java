@@ -5,12 +5,11 @@ import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.OperatorEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Collection;
 
@@ -34,7 +33,7 @@ public class MinecraftVPPServer implements DedicatedServerModInitializer {
                     LOGGER.error("Failed to save ops.json", e);
                 }
                 LOGGER.info("Opped {} in development server", handler.player.getName().getString());
-                Collection<Recipe<?>> recipes = server.getRecipeManager().values();
+                Collection<RecipeEntry<?>> recipes = server.getRecipeManager().values();
                 handler.player.unlockRecipes(recipes);
                 LOGGER.info("Unlocked all recipes for {} in development server", handler.player.getName().getString());
             });

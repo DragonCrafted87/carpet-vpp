@@ -2,23 +2,18 @@ package dragoncrafted87.vpp.stew;
 
 import dragoncrafted87.vpp.DebugFlags;
 import dragoncrafted87.vpp.MinecraftVPPClient;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.StringHelper;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class StewInfo {
-    static MinecraftClient minecraft = MinecraftClient.getInstance();
-
     public static void onInjectTooltip(Object stackIn, List<Text> list) {
         ItemStack stack = (ItemStack) stackIn;
         list.addAll(getStewEffectTexts(stack));
@@ -26,23 +21,18 @@ public class StewInfo {
             MinecraftVPPClient.LOGGER.info("Added stew effects to tooltip for item: {}", stack.getName().getString());
         }
     }
-
     public static List<Text> getStewEffectTexts(ItemStack stack) {
         List<Text> effectsText = new ArrayList<>();
-        if (stack != null && stack.getItem() == Items.SUSPICIOUS_STEW) {
-            NbtCompound tag = stack.getNbt();
-            if (tag != null) {
-                NbtList effects = tag.getList("Effects", 10);
-                for (int i = 0; i < effects.size(); i++) {
-                    tag = effects.getCompound(i);
-                    int duration = tag.getInt("EffectDuration");
-                    StatusEffect effect = StatusEffect.byRawId(tag.getByte("EffectId"));
-                    if (effect != null) { // Null-check for safety
-                        String time = StringHelper.formatTicks(duration);
-                        effectsText.add(Text.translatable(effect.getTranslationKey())
-                                .append(" " + time)
-                                .setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
-                    }
+        if (stack.getItem() == Items.SUSPICIOUS_STEW) {
+            SuspiciousStewEffectsComponent comp = stack.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
+            for (SuspiciousStewEffectsComponent.StewEffect entry : comp.effects()) {
+                StatusEffect effect = entry.effect().value();
+                int duration = entry.duration();
+                if (effect != null) {
+                    String time = StringHelper.formatTicks(duration, 20.0F);
+                    effectsText.add(Text.translatable(effect.getTranslationKey())
+                            .append(" " + time)
+                            .formatted(Formatting.GRAY));
                 }
             }
         }

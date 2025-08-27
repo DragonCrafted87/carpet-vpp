@@ -1,12 +1,10 @@
 #!/bin/bash
 
-set -x
-
 # Clear the console
 clear
 
 # Build the JAR
-./gradlew build --warning-mode fail
+(set -x; ./gradlew build --warning-mode fail)
 
 if [ $? -ne 0 ]; then
     echo "Build failed. Exiting."
@@ -22,4 +20,4 @@ start "" "D:/Games/MultiMC/MultiMC.exe" -l "test" >/dev/null 2>&1 &
 sleep 1
 
 # Launch the server
-./gradlew runServer
+(set -x; ./gradlew runServer)

@@ -17,6 +17,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
@@ -32,11 +33,11 @@ public class MinecraftVPPClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LOGGER.info("MinecraftVPPClient initialized successfully");
-        ClientPlayNetworking.registerGlobalReceiver(MinecraftVPPNetworking.ENABLE_SLOTS,
-                (client, handler, packet, sender) -> {
-                    client.execute(() -> {
-                        if (client.player != null) {
-                            InventoryUtility.updateBagSlots(client.player);
+        ClientPlayNetworking.registerGlobalReceiver(MinecraftVPPNetworking.EnableSlotsPayload.ID,
+                (payload, context) -> {
+                    context.client().execute(() -> {
+                        if (context.player() != null) {
+                            InventoryUtility.updateBagSlots(context.player());
                         }
                     });
                 });
@@ -73,7 +74,7 @@ public class MinecraftVPPClient implements ClientModInitializer {
                 client.getProfiler().push("vppHeldItemTooltip");
                 MutableText name = Text.empty().append(currentStack.getName())
                         .formatted(currentStack.getRarity().formatting);
-                if (currentStack.hasCustomName()) {
+                if (currentStack.contains(DataComponentTypes.CUSTOM_NAME)) {
                     name.formatted(Formatting.ITALIC);
                 }
                 int width = client.textRenderer.getWidth(name);
@@ -107,8 +108,14 @@ public class MinecraftVPPClient implements ClientModInitializer {
             }
         });
         // Partial replacement for ItemStackMixin: Add stew effects to item tooltip
-        ItemTooltipCallback.EVENT.register((stack, context, lines) -> {
+        ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> {
             StewInfo.onInjectTooltip(stack, lines);
+            if (stack.getItem() instanceof dragoncrafted87.vpp.bags.BaseBagItem bag) {
+                lines.add(Text
+                        .translatable("tooltip.vpp.slots",
+                                Text.literal(String.valueOf(bag.getSlotCount())).formatted(Formatting.BLUE))
+                        .formatted(Formatting.GRAY));
+            }
         });
     }
 

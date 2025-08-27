@@ -15,14 +15,14 @@ repositories {
         name = "Fabric"
         url = "https://maven.fabricmc.net/"
     }
-maven {
-name = "TerraformersMC"
-url = "https://maven.terraformersmc.com/"
-}
-maven {
-name = "Ladysnake Libs"
-url = 'https://maven.ladysnake.org/releases'
-}
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = 'https://maven.ladysnake.org/releases'
+    }
     maven {
         name = "Sleeping Town"
         url = "https://repo.sleeping.town"
@@ -81,7 +81,7 @@ processResources {
     }
 }
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+    it.options.release = 21
     it.options.encoding = 'UTF-8'
 }
 java {
@@ -130,6 +130,7 @@ task setupRunServer {
             propsFile.createNewFile()
         }
         props.setProperty("enable-command-block", "true")
+        props.setProperty("online-mode", "false")
         props.store(propsFile.newWriter(), null)
     }
 }

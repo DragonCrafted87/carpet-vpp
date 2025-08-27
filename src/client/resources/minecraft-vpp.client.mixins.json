@@ -4,7 +4,8 @@
         "InGameHudAccessor",
         "InventoryScreenMixin",
         "ItemStackMixin",
-        "RecipeBookWidgetMixin"
+        "RecipeBookWidgetMixin",
+        "BaseBagItemMixin"
     ],
     "compatibilityLevel": "JAVA_17",
     "injectors": {
