@@ -2,7 +2,7 @@
 
 ## 1. Project Setup Guidelines
 - **Mod Loader**: Fabric.
-- **Minecraft Version**: Starting Version 1.20.1 updating to 1.20.6; ensure dependencies match.
+- **Minecraft Version**: Starting Version 1.20.6 updating to 1.21.1; ensure dependencies match.
 - **Build System**: Gradle-based buildscript. Include `build.gradle` and `settings.gradle` in code dump if customizing.
 - **Directory Structure**:
   - src/main/java/[package]/: Core mod classes.

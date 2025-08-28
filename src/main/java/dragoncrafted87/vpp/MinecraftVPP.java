@@ -38,7 +38,7 @@ public class MinecraftVPP implements ModInitializer {
     public static final int MAX_SATCHEL_SLOTS = 18;
     public static final int MAX_POUCH_SLOTS = 6;
     public static RegistryKey<ItemGroup> ITEM_GROUP_KEY = RegistryKey.of(RegistryKeys.ITEM_GROUP,
-            new Identifier(MOD_ID, "itemgroup"));
+            Identifier.of(MOD_ID, "itemgroup"));
     public static final Item SATCHEL_STRAP = new Item(new Item.Settings());
     public static final BaseBagItem SATCHEL = new BaseBagItem(
             new Item.Settings().maxCount(1), MAX_SATCHEL_SLOTS / 2,
@@ -57,11 +57,11 @@ public class MinecraftVPP implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("MinecraftVPP initialized successfully");
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "satchel_strap"), SATCHEL_STRAP);
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "satchel"), SATCHEL);
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "pouch"), POUCH);
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
+        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "satchel_strap"), SATCHEL_STRAP);
+        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "satchel"), SATCHEL);
+        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
+        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "pouch"), POUCH);
+        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
         Registry.register(Registries.ITEM_GROUP, ITEM_GROUP_KEY,
                 FabricItemGroup.builder()
                         .displayName(Text.translatable("itemGroup.vpp.itemgroup"))
@@ -98,7 +98,7 @@ public class MinecraftVPP implements ModInitializer {
                 data.removeBeacon(pos);
             }
         });
-        Identifier afterPhase = new Identifier(MOD_ID, "after");
+        Identifier afterPhase = Identifier.of(MOD_ID, "after");
         ServerPlayConnectionEvents.JOIN.addPhaseOrdering(Event.DEFAULT_PHASE, afterPhase);
         ServerPlayConnectionEvents.JOIN.register(afterPhase, (handler, sender, server) -> {
             InventoryUtility.updateBagSlots(handler.player);

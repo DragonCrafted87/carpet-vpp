@@ -15,7 +15,7 @@ import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
 
 public class InventoryUtility {
-    public static final Identifier SLOT_TEXTURE = new Identifier("vpp", "textures/gui/slots.png");
+    public static final Identifier SLOT_TEXTURE = Identifier.of("vpp", "textures/gui/slots.png");
 
     public static ItemStack findBagItem(PlayerEntity player, BaseBagItem.BagType type, boolean right) {
         ItemStack targetStack = ItemStack.EMPTY;

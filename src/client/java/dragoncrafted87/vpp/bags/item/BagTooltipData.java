@@ -1,6 +1,6 @@
 package dragoncrafted87.vpp.bags.item;
 
-import net.minecraft.client.item.TooltipData;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 

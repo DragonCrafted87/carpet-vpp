@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 public class MinecraftVPPNetworking {
     public static class EnableSlotsPayload implements CustomPayload {
         public static final CustomPayload.Id<EnableSlotsPayload> ID = new CustomPayload.Id<>(
-                new Identifier(MinecraftVPP.MOD_ID, "enable_slots"));
+                Identifier.of(MinecraftVPP.MOD_ID, "enable_slots"));
         public static final PacketCodec<PacketByteBuf, EnableSlotsPayload> CODEC = PacketCodec
                 .ofStatic(EnableSlotsPayload::write, EnableSlotsPayload::new);
 

@@ -7,7 +7,7 @@
         "RecipeBookWidgetMixin",
         "BaseBagItemMixin"
     ],
-    "compatibilityLevel": "JAVA_17",
+    "compatibilityLevel": "JAVA_21",
     "injectors": {
         "defaultRequire": 1
     },

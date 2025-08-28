@@ -37,16 +37,19 @@
         ],
         "emi": [
             "dragoncrafted87.vpp.compat.MinecraftVPPEmiPlugin"
+        ],
+        "fabric-datagen": [
+            "dragoncrafted87.vpp.datagen.VPPDataGenerator"
         ]
     },
     "environment": "*",
-    "icon": "assets/minecraft-vpp/icon.png",
-    "id": "minecraft-vpp",
+    "icon": "assets/vpp/icon.png",
+    "id": "vpp",
     "license": "MIT",
     "mixins": [
-        "minecraft-vpp.mixins.json",
+        "vpp.mixins.json",
         {
-            "config": "minecraft-vpp.client.mixins.json",
+            "config": "vpp.client.mixins.json",
             "environment": "client"
         }
     ],
