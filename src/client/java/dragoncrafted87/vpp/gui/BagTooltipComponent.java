@@ -6,6 +6,7 @@ import dragoncrafted87.vpp.bags.item.BagTooltipData;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import java.math.RoundingMode;
@@ -20,7 +21,7 @@ public class BagTooltipComponent implements TooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(TextRenderer textRenderer) {
         return (18 * IntMath.divide(slotCount, 6, RoundingMode.UP)) + 2;
     }
 
@@ -30,7 +31,7 @@ public class BagTooltipComponent implements TooltipComponent {
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
+    public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
         int originalX = x;
         // Draw all slots first
         int tx = x;
@@ -80,6 +81,6 @@ public class BagTooltipComponent implements TooltipComponent {
     }
 
     private void drawSlot(DrawContext context, int x, int y) {
-        context.drawTexture(InventoryUtility.SLOT_TEXTURE, x, y, 0, 7.0f, 7.0f, 18, 18, 256, 256);
+        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f, 18, 18, 256, 256);
     }
 }

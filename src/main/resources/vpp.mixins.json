@@ -12,5 +12,6 @@
         "ServerPlayerEntityMixin"
     ],
     "package": "dragoncrafted87.vpp.mixin",
+    "refmap": "vpp-refmap.json",
     "required": true
 }

@@ -24,4 +24,4 @@ fi
 sleep 1
 
 # Launch the server
-(set -x; ./gradlew runClient)
+(set -x; ./gradlew runServer)

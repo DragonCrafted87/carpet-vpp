@@ -14,7 +14,6 @@
         "trinkets": ">=${trinkets_version}"
     },
     "recommends": {
-        "emi": ">=${emi_version}"
     },
     "breaks": {
         "infinitory": "*",
@@ -34,9 +33,6 @@
         ],
         "server": [
             "dragoncrafted87.vpp.MinecraftVPPServer"
-        ],
-        "emi": [
-            "dragoncrafted87.vpp.compat.MinecraftVPPEmiPlugin"
         ],
         "fabric-datagen": [
             "dragoncrafted87.vpp.datagen.VPPDataGenerator"

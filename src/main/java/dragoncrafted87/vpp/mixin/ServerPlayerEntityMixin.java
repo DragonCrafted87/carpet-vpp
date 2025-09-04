@@ -23,7 +23,7 @@ public class ServerPlayerEntityMixin {
     private void vpp$attemptFixGraveMods(DamageSource source, CallbackInfo callbackInfo) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
-        if (!player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+        if (!player.getServer().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
             ItemStack backStack = InventoryUtility.findBagItem(player, BagType.SATCHEL, false);
             if (!backStack.isEmpty()) {
                 BaseBagItem bagItem = (BaseBagItem) backStack.getItem();

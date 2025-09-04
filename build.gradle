@@ -30,6 +30,10 @@ repositories {
             includeGroup "com.unascribed"
         }
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
 }
 loom {
     splitEnvironmentSourceSets()
@@ -50,11 +54,16 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "dev.emi:trinkets:${trinkets_version}"
-    include "dev.emi:trinkets:${trinkets_version}"
-    modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
+    modImplementation "maven.modrinth:trinkets-canary:${project.trinkets_version}"
+    // modImplementation "dev.emi:trinkets:${trinkets_version}"
+    // include "dev.emi:trinkets:${trinkets_version}"
+    // modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
     // modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    // Replace modImplementation with modApi if you expose components in your own API
+    modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+    include "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    include "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
     // Add jsr305 to resolve missing Nullable annotation during source remapping
     modCompileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
@@ -62,7 +71,7 @@ dependencies {
 def fabric_version_short = project.fabric_version.split("\\+")[0]
 def minecraft_version_val = project.minecraft_version
 def trinkets_version_val = project.trinkets_version
-def emi_version_short = project.emi_version.split("\\+")[0]
+//def emi_version_short = project.emi_version.split("\\+")[0]
 def mod_version_val = project.version
 
 processResources {
@@ -70,14 +79,14 @@ processResources {
     inputs.property("fabric_version", fabric_version_short)
     inputs.property("minecraft_version", minecraft_version_val)
     inputs.property("trinkets_version", trinkets_version_val)
-    inputs.property("emi_version", emi_version_short)
+    //inputs.property("emi_version", emi_version_short)
     filesMatching("fabric.mod.json") {
         expand(
             "version": mod_version_val,
             "fabric_version": fabric_version_short,
             "minecraft_version": minecraft_version_val,
-            "trinkets_version": trinkets_version_val,
-            "emi_version": emi_version_short
+            "trinkets_version": trinkets_version_val
+            //"emi_version": emi_version_short
         )
     }
 }

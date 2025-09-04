@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.profiler.Profilers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -65,13 +66,27 @@ public class MinecraftVPPClient implements ClientModInitializer {
                 }
             }
         });
-        // Replacement for InGameHudMixin: Add stew effects to held item HUD
-        HudRenderCallback.EVENT.register((context, tickDelta) -> {
+        registerStewHud();
+        // Partial replacement for ItemStackMixin: Add stew effects to item tooltip
+        ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> {
+            StewInfo.onInjectTooltip(stack, lines);
+            if (stack.getItem() instanceof dragoncrafted87.vpp.bags.BaseBagItem bag) {
+                lines.add(Text
+                        .translatable("tooltip.vpp.slots",
+                                Text.literal(String.valueOf(bag.getSlotCount())).formatted(Formatting.BLUE))
+                        .formatted(Formatting.GRAY));
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void registerStewHud() {
+        HudRenderCallback.EVENT.register((context, tickCounter) -> {
             MinecraftClient client = MinecraftClient.getInstance();
             ItemStack currentStack = client.player.getMainHandStack(); // Check main hand; adjust for offhand if needed
             int heldItemTooltipFade = ((InGameHudAccessor) client.inGameHud).getHeldItemTooltipFade();
             if (heldItemTooltipFade > 0 && !currentStack.isEmpty()) {
-                client.getProfiler().push("vppHeldItemTooltip");
+                Profilers.get().push("vppHeldItemTooltip");
                 MutableText name = Text.empty().append(currentStack.getName())
                         .formatted(currentStack.getRarity().formatting);
                 if (currentStack.contains(DataComponentTypes.CUSTOM_NAME)) {
@@ -104,17 +119,7 @@ public class MinecraftVPPClient implements ClientModInitializer {
                     }
                     RenderSystem.disableBlend();
                 }
-                client.getProfiler().pop();
-            }
-        });
-        // Partial replacement for ItemStackMixin: Add stew effects to item tooltip
-        ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> {
-            StewInfo.onInjectTooltip(stack, lines);
-            if (stack.getItem() instanceof dragoncrafted87.vpp.bags.BaseBagItem bag) {
-                lines.add(Text
-                        .translatable("tooltip.vpp.slots",
-                                Text.literal(String.valueOf(bag.getSlotCount())).formatted(Formatting.BLUE))
-                        .formatted(Formatting.GRAY));
+                Profilers.get().pop();
             }
         });
     }

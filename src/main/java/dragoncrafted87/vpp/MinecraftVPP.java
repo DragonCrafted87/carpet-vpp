@@ -39,17 +39,27 @@ public class MinecraftVPP implements ModInitializer {
     public static final int MAX_POUCH_SLOTS = 6;
     public static RegistryKey<ItemGroup> ITEM_GROUP_KEY = RegistryKey.of(RegistryKeys.ITEM_GROUP,
             Identifier.of(MOD_ID, "itemgroup"));
-    public static final Item SATCHEL_STRAP = new Item(new Item.Settings());
+    public static final Item SATCHEL_STRAP = new Item(
+            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "satchel_strap"))));
     public static final BaseBagItem SATCHEL = new BaseBagItem(
-            new Item.Settings().maxCount(1), MAX_SATCHEL_SLOTS / 2,
+            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "satchel")))
+                    .maxCount(1),
+            MAX_SATCHEL_SLOTS / 2,
             BagType.SATCHEL);
     public static final BaseBagItem UPGRADED_SATCHEL = new BaseBagItem(
-            new Item.Settings().maxCount(1).rarity(Rarity.RARE), MAX_SATCHEL_SLOTS,
+            new Item.Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "upgraded_satchel")))
+                    .maxCount(1).rarity(Rarity.RARE),
+            MAX_SATCHEL_SLOTS,
             BagType.SATCHEL);
     public static final BaseBagItem POUCH = new BaseBagItem(
-            new Item.Settings().maxCount(1), MAX_POUCH_SLOTS / 2, BagType.POUCH);
+            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "pouch")))
+                    .maxCount(1),
+            MAX_POUCH_SLOTS / 2, BagType.POUCH);
     public static final BaseBagItem UPGRADED_POUCH = new BaseBagItem(
-            new Item.Settings().maxCount(1).rarity(Rarity.RARE), MAX_POUCH_SLOTS,
+            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "upgraded_pouch")))
+                    .maxCount(1).rarity(Rarity.RARE),
+            MAX_POUCH_SLOTS,
             BagType.POUCH);
     public static final ChunkTicketType<BlockPos> BEACON = ChunkTicketType.create("vpp_beacon",
             Comparator.comparingLong(BlockPos::asLong), 300); // 15 sec expiry

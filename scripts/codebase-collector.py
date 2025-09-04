@@ -26,7 +26,8 @@ def find_src_files(root: Path, extensions: list[str]) -> list[Path]:
 
 def find_root_files(root: Path) -> list[Path]:
     """Find specific files at the repository root."""
-    file_names = ['build.gradle', 'gradle.properties', 'settings.gradle', 'src/main/resources/vpp.accesswidener']
+    # file_names = ['build.gradle', 'gradle.properties', 'settings.gradle', 'src/main/resources/vpp.accesswidener']
+    file_names = ['src/main/resources/vpp.accesswidener']
     files = []
     for fname in file_names:
         file_path = root / fname
