@@ -1,6 +1,5 @@
 package dragoncrafted87.vpp;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
@@ -24,6 +23,8 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.profiler.Profilers;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL14;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -103,8 +104,8 @@ public class MinecraftVPPClient implements ClientModInitializer {
                     opacity = 255;
                 }
                 if (opacity > 0) {
-                    RenderSystem.enableBlend();
-                    RenderSystem.defaultBlendFunc();
+                    GL11.glEnable(GL11.GL_BLEND);
+                    GL14.glBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
                     context.fill(j - 2, hotbarOffset - 2, j + width + 2, hotbarOffset + 9 + 2,
                             client.options.getTextBackgroundColor(0));
                     List<Text> effectTexts = StewInfo.getStewEffectTexts(currentStack);
@@ -117,7 +118,7 @@ public class MinecraftVPPClient implements ClientModInitializer {
                         context.drawTextWithShadow(client.textRenderer, text, j,
                                 hotbarOffset - (i * 14) - 14, 13421772 + (opacity << 24));
                     }
-                    RenderSystem.disableBlend();
+                    GL11.glDisable(GL11.GL_BLEND);
                 }
                 Profilers.get().pop();
             }

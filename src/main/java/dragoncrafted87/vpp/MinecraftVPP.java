@@ -28,7 +28,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -61,8 +60,7 @@ public class MinecraftVPP implements ModInitializer {
                     .maxCount(1).rarity(Rarity.RARE),
             MAX_POUCH_SLOTS,
             BagType.POUCH);
-    public static final ChunkTicketType<BlockPos> BEACON = ChunkTicketType.create("vpp_beacon",
-            Comparator.comparingLong(BlockPos::asLong), 300); // 15 sec expiry
+    public static final ChunkTicketType BEACON = new ChunkTicketType(300, false, ChunkTicketType.Use.LOADING);
 
     @Override
     public void onInitialize() {
@@ -92,7 +90,7 @@ public class MinecraftVPP implements ModInitializer {
             for (BlockPos pos : new HashSet<>(data.activeBeacons)) { // Copy to avoid concurrent mod
                 if (world.getBlockState(pos).isOf(Blocks.BEACON)) {
                     ChunkPos chunkPos = new ChunkPos(pos);
-                    world.getChunkManager().addTicket(BEACON, chunkPos, 5, pos); // Bootstrap with max radius
+                    world.getChunkManager().addTicket(BEACON, chunkPos, 5); // Bootstrap with max radius
                     if (DebugFlags.DEBUG_BEACON_LOADING) {
                         LOGGER.info("Bootstrapped chunk ticket for saved beacon at {} on world load", pos.toString());
                     }

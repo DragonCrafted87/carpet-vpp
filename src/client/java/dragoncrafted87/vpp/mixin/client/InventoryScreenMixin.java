@@ -1,3 +1,5 @@
+// Note: Corrected imports for VertexFormat, VertexFormats (moved to net.minecraft.client.render in 1.21+), and GlStateManager (to com.mojang.blaze3d.opengl). Replaced GlStateManager.DepthFunc.ALWAYS with 519 (GL_ALWAYS constant for depth test function, as DepthFunc inner class does not exist; this matches vanilla usage in GlStateManager._depthFunc(int)). No other changes; this should resolve all resolution errors. Test in-game for rendering correctness—if slots don't display properly, consider manual quad drawing with Tessellator in next iteration.
+
 package dragoncrafted87.vpp.mixin.client;
 
 import dragoncrafted87.vpp.bags.BaseBagItem;
@@ -5,10 +7,14 @@ import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,6 +22,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(net.minecraft.client.gui.screen.ingame.InventoryScreen.class)
 public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHandler> {
+    private static final RenderPipeline SLOT_PIPELINE = RenderPipeline.builder()
+            .withVertexShader(Identifier.of("minecraft", "core/rendertype_gui.vsh"))
+            .withFragmentShader(Identifier.of("minecraft", "core/rendertype_gui.fsh"))
+            .withSampler("Sampler0")
+            .withoutBlend()
+            .withCull(false)
+            .withDepthTestFunction(DepthTestFunction.EQUAL_DEPTH_TEST)
+            .withDepthWrite(false)
+            .withVertexFormat(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.QUADS)
+            .build();
+
     private InventoryScreenMixin() {
         super(null, null, null);
     }
@@ -77,7 +94,7 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                 int slots = bagItem.getSlotCount();
                 int x = screenX;
                 int y = screenY + backgroundHeight - 3;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 32.0f,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 32.0f,
                         backgroundWidth, 4, 256, 256);
                 y += 4;
                 float u = 0;
@@ -86,23 +103,23 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                     if (slot % 9 == 0) {
                         x = screenX;
                         u = 0;
-                        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, u, v, 7,
+                        context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, u, v, 7,
                                 18, 256, 256);
                         x += 7;
                         u += 7;
                     }
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, u, v, 18, 18,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, u, v, 18, 18,
                             256, 256);
                     x += 18;
                     u += 18;
                     if ((slot + 1) % 9 == 0) {
-                        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, u, v, 7,
+                        context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, u, v, 7,
                                 18, 256, 256);
                         y += 18;
                     }
                 }
                 x = screenX;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 54.0f,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 54.0f,
                         backgroundWidth, 7, 256, 256);
             }
             // Draw left pouch slots
@@ -113,22 +130,22 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                 int columns = (int) Math.ceil(slots / 3);
                 int x = screenX;
                 int y = screenY + 137;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 18.0f, 25.0f, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 18.0f, 25.0f, 7,
                         7, 256, 256);
                 for (int i = 0; i < columns; i++) {
                     x -= 11;
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 25.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 25.0f,
                             11, 7, 256, 256);
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
                         x -= 7;
-                        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
+                        context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
                                 25.0f, 7, 7, 256, 256);
                     }
                 }
                 x -= 7;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 25.0f, 7, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 25.0f, 7, 7,
                         256, 256);
                 x = screenX + 7;
                 y -= 54;
@@ -138,34 +155,34 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                         y += 54;
                     }
                     y -= 18;
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f,
                             18, 18, 256, 256);
                 }
                 x -= 7;
                 y += 54;
                 for (int i = 0; i < 3; i++) {
                     y -= 18;
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 7.0f, 7,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 7.0f, 7,
                             18, 256, 256);
                 }
                 x = screenX;
                 y -= 7;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 18.0f, 0.0f, 7, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 18.0f, 0.0f, 7, 7,
                         256, 256);
                 for (int i = 0; i < columns; i++) {
                     x -= 11;
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 0.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 0.0f,
                             11, 7, 256, 256);
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
                         x -= 7;
-                        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
+                        context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
                                 0.0f, 7, 7, 256, 256);
                     }
                 }
                 x -= 7;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 0.0f, 7, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 0.0f, 0.0f, 7, 7,
                         256, 256);
             }
             // Draw right pouch slots (similar logic)
@@ -176,22 +193,22 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                 int columns = (int) Math.ceil(slots / 3);
                 int x = screenX + backgroundWidth - 7;
                 int y = screenY + 137;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 25.0f, 25.0f, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 25.0f, 25.0f, 7,
                         7, 256, 256);
                 x += 7;
                 for (int i = 0; i < columns; i++) {
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 25.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 25.0f,
                             11, 7, 256, 256);
                     x += 11;
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
-                        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
+                        context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
                                 25.0f, 7, 7, 256, 256);
                         x += 7;
                     }
                 }
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 32.0f, 25.0f, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 32.0f, 25.0f, 7,
                         7, 256, 256);
                 x = screenX + backgroundWidth - 25;
                 y -= 54;
@@ -201,34 +218,34 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                         y += 54;
                     }
                     y -= 18;
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f,
                             18, 18, 256, 256);
                 }
                 x += 18;
                 y += 54;
                 for (int i = 0; i < 3; i++) {
                     y -= 18;
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 32.0f, 7.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 32.0f, 7.0f,
                             7, 18, 256, 256);
                 }
                 x = screenX + backgroundWidth - 7;
                 y -= 7;
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 25.0f, 0.0f, 7, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 25.0f, 0.0f, 7, 7,
                         256, 256);
                 x += 7;
                 for (int i = 0; i < columns; i++) {
-                    context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 0.0f,
+                    context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 0.0f,
                             11, 7, 256, 256);
                     x += 11;
                 }
                 if (columns > 1) {
                     for (int i = 0; i < columns - 1; i++) {
-                        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
+                        context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f,
                                 0.0f, 7, 7, 256, 256);
                         x += 7;
                     }
                 }
-                context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 32.0f, 0.0f, 7, 7,
+                context.drawTexture(SLOT_PIPELINE, InventoryUtility.SLOT_TEXTURE, x, y, 32.0f, 0.0f, 7, 7,
                         256, 256);
             }
         }

@@ -9,6 +9,9 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
+import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import java.lang.reflect.Field;
 import java.math.RoundingMode;
 
 public class BagTooltipComponent implements TooltipComponent {
@@ -45,8 +48,9 @@ public class BagTooltipComponent implements TooltipComponent {
             }
         }
         // Draw all items
-        context.getMatrices().push();
-        context.getMatrices().translate(0.0f, 0.0f, 150.0f);
+        Matrix3x2fStack matrices = context.getMatrices();
+        matrices.pushMatrix();
+        matrices.translate(0.0f, 0.0f);
         tx = x;
         ty = y;
         for (int i = 0; i < slotCount; i++) {
@@ -58,10 +62,10 @@ public class BagTooltipComponent implements TooltipComponent {
                 tx = originalX;
             }
         }
-        context.getMatrices().pop();
+        matrices.popMatrix();
         // Draw all stack counts
-        context.getMatrices().push();
-        context.getMatrices().translate(0.0f, 0.0f, 250.0f);
+        matrices.pushMatrix();
+        matrices.translate(0.0f, 0.0f);
         tx = x;
         ty = y;
         for (int i = 0; i < slotCount; i++) {
@@ -77,10 +81,19 @@ public class BagTooltipComponent implements TooltipComponent {
                 tx = originalX;
             }
         }
-        context.getMatrices().pop();
+        matrices.popMatrix();
     }
 
     private void drawSlot(DrawContext context, int x, int y) {
-        context.drawTexture(RenderLayer::getGuiTextured, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f, 18, 18, 256, 256);
+        RenderLayer layer = RenderLayer.getText(InventoryUtility.SLOT_TEXTURE);
+        RenderPipeline pipeline;
+        try {
+            Field field = RenderLayer.MultiPhase.class.getDeclaredField("pipeline");
+            field.setAccessible(true);
+            pipeline = (RenderPipeline) field.get(layer);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to access RenderPipeline", e);
+        }
+        context.drawTexture(pipeline, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f, 18, 18, 256, 256);
     }
 }

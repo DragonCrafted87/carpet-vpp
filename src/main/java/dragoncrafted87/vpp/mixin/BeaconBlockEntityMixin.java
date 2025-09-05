@@ -27,7 +27,7 @@ public abstract class BeaconBlockEntityMixin {
                 BeaconChunkLoaderData data = BeaconChunkLoaderData.get(serverWorld);
                 if (isActive) {
                     int radius = 1 + pyramidLevel;
-                    serverWorld.getChunkManager().addTicket(MinecraftVPP.BEACON, chunkPos, radius, pos);
+                    serverWorld.getChunkManager().addTicket(MinecraftVPP.BEACON, chunkPos, radius);
                     data.addBeacon(pos);
                     if (DebugFlags.DEBUG_BEACON_LOADING) {
                         MinecraftVPP.LOGGER.info("Beacon at {} is active, loading chunk with radius {}", pos.toString(),
