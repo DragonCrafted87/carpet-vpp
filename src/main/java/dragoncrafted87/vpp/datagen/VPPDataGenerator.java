@@ -8,6 +8,5 @@ public class VPPDataGenerator implements DataGeneratorEntrypoint {
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         final FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(VPPRecipeProvider::new);
-        pack.addProvider((output, registriesFuture) -> new VPPAdvancementProvider(output, registriesFuture));
     }
 }

@@ -1,12 +1,12 @@
 package dragoncrafted87.vpp.core;
 
 import dragoncrafted87.vpp.bags.screen.BagSlot;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
 
 public interface MinecraftVPPScreenHandler {
-    DefaultedList<BagSlot> vpp$getSatchelSlots();
+    NonNullList<BagSlot> vpp$getSatchelSlots();
 
-    DefaultedList<BagSlot> vpp$getLeftPouchSlots();
+    NonNullList<BagSlot> vpp$getLeftPouchSlots();
 
-    DefaultedList<BagSlot> vpp$getRightPouchSlots();
+    NonNullList<BagSlot> vpp$getRightPouchSlots();
 }

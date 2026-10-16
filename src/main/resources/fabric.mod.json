@@ -1,6 +1,5 @@
 {
     "schemaVersion": 1,
-    "accessWidener": "vpp.accesswidener",
     "authors": [
         "Me!"
     ],
@@ -9,9 +8,10 @@
         "sources": "https://github.com/FabricMC/fabric-example-mod"
     },
     "depends": {
-        "fabric": ">=${fabric_version}",
+        "fabricloader": ">=${loader_version}",
+        "fabric-api": ">=${fabric_version}",
         "minecraft": ">=${minecraft_version}",
-        "trinkets": ">=${trinkets_version}"
+        "trinkets": ">=4.2.1"
     },
     "recommends": {
     },

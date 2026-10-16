@@ -1,25 +1,26 @@
 package dragoncrafted87.vpp.datagen;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.minecraft.advancement.criterion.InventoryChangedCriterion;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.data.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
 import dragoncrafted87.vpp.MinecraftVPP;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.triggers.InventoryChangeTrigger;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.concurrent.CompletableFuture;
 
 public class VPPRecipeProvider extends FabricRecipeProvider {
-    public VPPRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public VPPRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
@@ -29,57 +30,68 @@ public class VPPRecipeProvider extends FabricRecipeProvider {
     }
 
     @Override
-    protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup registries, net.minecraft.data.recipe.RecipeExporter exporter) {
-        return new RecipeGenerator(registries, exporter) {
+    protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries,
+            BootstrapContext<Recipe<?>> recipeContext, BootstrapContext<Advancement> advancementContext) {
+        return new RecipeProvider(recipeContext, advancementContext) {
             @Override
-            public void generate() {
-                RegistryEntryLookup<Item> itemLookup = registries.getOrThrow(RegistryKeys.ITEM);
+            public void buildRecipes() {
+                var itemLookup = registries.lookupOrThrow(net.minecraft.core.registries.Registries.ITEM);
 
-                ShapedRecipeJsonBuilder.create(itemLookup, RecipeCategory.MISC, MinecraftVPP.POUCH)
+                ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.MISC, MinecraftVPP.POUCH)
                         .pattern("SLS")
                         .pattern("LbL")
                         .pattern("SLS")
-                        .input('S', Items.STRING)
-                        .input('L', Items.LEATHER)
-                        .input('b', Items.STONE_BUTTON)
-                        .criterion("has_leather", InventoryChangedCriterion.Conditions.items(Items.LEATHER))
-                        .criterion("has_string", InventoryChangedCriterion.Conditions.items(Items.STRING))
-                        .criterion("has_stone_button", InventoryChangedCriterion.Conditions.items(Items.STONE_BUTTON))
-                        .offerTo(exporter);
+                        .define('S', Items.STRING)
+                        .define('L', Items.LEATHER)
+                        .define('b', Items.STONE_BUTTON)
+                        .unlockedBy("has_leather", InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                        .unlockedBy("has_string", InventoryChangeTrigger.TriggerInstance.hasItems(Items.STRING))
+                        .unlockedBy("has_stone_button", InventoryChangeTrigger.TriggerInstance.hasItems(Items.STONE_BUTTON))
+                        .save(output);
 
-                ShapelessRecipeJsonBuilder.create(itemLookup, RecipeCategory.MISC, MinecraftVPP.SATCHEL_STRAP)
-                        .input(Items.LEATHER)
-                        .input(Items.STRING)
-                        .input(Items.LEATHER)
-                        .criterion("has_leather", InventoryChangedCriterion.Conditions.items(Items.LEATHER))
-                        .criterion("has_string", InventoryChangedCriterion.Conditions.items(Items.STRING))
-                        .offerTo(exporter);
+                ShapelessRecipeBuilder.shapeless(itemLookup, RecipeCategory.MISC, MinecraftVPP.SATCHEL_STRAP)
+                        .requires(Items.LEATHER)
+                        .requires(Items.STRING)
+                        .requires(Items.LEATHER)
+                        .unlockedBy("has_leather", InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                        .unlockedBy("has_string", InventoryChangeTrigger.TriggerInstance.hasItems(Items.STRING))
+                        .save(output);
 
-                ShapedRecipeJsonBuilder.create(itemLookup, RecipeCategory.MISC, MinecraftVPP.SATCHEL)
+                ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.MISC, MinecraftVPP.SATCHEL)
                         .pattern("TLT")
                         .pattern("LbL")
                         .pattern("SLS")
-                        .input('T', MinecraftVPP.SATCHEL_STRAP)
-                        .input('L', Items.LEATHER)
-                        .input('S', Items.STRING)
-                        .input('b', Items.STONE_BUTTON)
-                        .criterion("has_satchel_strap", InventoryChangedCriterion.Conditions.items(MinecraftVPP.SATCHEL_STRAP))
-                        .criterion("has_leather", InventoryChangedCriterion.Conditions.items(Items.LEATHER))
-                        .criterion("has_string", InventoryChangedCriterion.Conditions.items(Items.STRING))
-                        .criterion("has_stone_button", InventoryChangedCriterion.Conditions.items(Items.STONE_BUTTON))
-                        .offerTo(exporter);
+                        .define('T', MinecraftVPP.SATCHEL_STRAP)
+                        .define('L', Items.LEATHER)
+                        .define('S', Items.STRING)
+                        .define('b', Items.STONE_BUTTON)
+                        .unlockedBy("has_satchel_strap", InventoryChangeTrigger.TriggerInstance.hasItems(MinecraftVPP.SATCHEL_STRAP))
+                        .unlockedBy("has_leather", InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                        .unlockedBy("has_string", InventoryChangeTrigger.TriggerInstance.hasItems(Items.STRING))
+                        .unlockedBy("has_stone_button", InventoryChangeTrigger.TriggerInstance.hasItems(Items.STONE_BUTTON))
+                        .save(output);
 
-                SmithingTransformRecipeJsonBuilder.create(Ingredient.ofItems(Items.LEATHER), Ingredient.ofItems(MinecraftVPP.POUCH), Ingredient.ofItems(Items.DIAMOND), RecipeCategory.MISC, MinecraftVPP.UPGRADED_POUCH)
-                        .criterion("has_leather", InventoryChangedCriterion.Conditions.items(Items.LEATHER))
-                        .criterion("has_pouch", InventoryChangedCriterion.Conditions.items(MinecraftVPP.POUCH))
-                        .criterion("has_diamond", InventoryChangedCriterion.Conditions.items(Items.DIAMOND))
-                        .offerTo(exporter, "upgraded_pouch");
+                SmithingTransformRecipeBuilder.smithing(
+                        Ingredient.of(Items.LEATHER),
+                        Ingredient.of(MinecraftVPP.POUCH),
+                        Ingredient.of(Items.DIAMOND),
+                        RecipeCategory.MISC,
+                        MinecraftVPP.UPGRADED_POUCH)
+                        .unlocks("has_leather", InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                        .unlocks("has_pouch", InventoryChangeTrigger.TriggerInstance.hasItems(MinecraftVPP.POUCH))
+                        .unlocks("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                        .save(output, "upgraded_pouch");
 
-                SmithingTransformRecipeJsonBuilder.create(Ingredient.ofItems(Items.LEATHER), Ingredient.ofItems(MinecraftVPP.SATCHEL), Ingredient.ofItems(Items.DIAMOND), RecipeCategory.MISC, MinecraftVPP.UPGRADED_SATCHEL)
-                        .criterion("has_leather", InventoryChangedCriterion.Conditions.items(Items.LEATHER))
-                        .criterion("has_satchel", InventoryChangedCriterion.Conditions.items(MinecraftVPP.SATCHEL))
-                        .criterion("has_diamond", InventoryChangedCriterion.Conditions.items(Items.DIAMOND))
-                        .offerTo(exporter, "upgraded_satchel");
+                SmithingTransformRecipeBuilder.smithing(
+                        Ingredient.of(Items.LEATHER),
+                        Ingredient.of(MinecraftVPP.SATCHEL),
+                        Ingredient.of(Items.DIAMOND),
+                        RecipeCategory.MISC,
+                        MinecraftVPP.UPGRADED_SATCHEL)
+                        .unlocks("has_leather", InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                        .unlocks("has_satchel", InventoryChangeTrigger.TriggerInstance.hasItems(MinecraftVPP.SATCHEL))
+                        .unlocks("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                        .save(output, "upgraded_satchel");
             }
         };
     }

@@ -1,8 +1,8 @@
 package dragoncrafted87.vpp.bags.item;
 
-import net.minecraft.item.tooltip.TooltipData;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.ItemStack;
 
-public record BagTooltipData(DefaultedList<ItemStack> inventory, int slotCount) implements TooltipData {
+public record BagTooltipData(NonNullList<ItemStack> inventory, int slotCount) implements TooltipComponent {
 }

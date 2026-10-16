@@ -3,28 +3,28 @@ package dragoncrafted87.vpp.bags;
 import dragoncrafted87.vpp.DebugFlags;
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
-import dev.emi.trinkets.api.SlotReference;
-import dev.emi.trinkets.api.TrinketComponent;
-import dev.emi.trinkets.api.TrinketItem;
-import dev.emi.trinkets.api.TrinketsApi;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ContainerComponent;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.collection.DefaultedList;
+import eu.pb4.trinkets.api.TrinketSlotAccess;
+import eu.pb4.trinkets.api.TrinketsApi;
+import eu.pb4.trinkets.api.callback.TrinketCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
+
 import java.util.List;
-import java.util.Optional;
 
-public class BaseBagItem extends TrinketItem {
-    private int slots;
-    private BagType type;
+public class BaseBagItem extends Item implements TrinketCallback {
+    private final int slots;
+    private final BagType type;
 
-    public BaseBagItem(Settings settings, int slots, BagType type) {
+    public BaseBagItem(Properties settings, int slots, BagType type) {
         super(settings);
         if (type == BagType.SATCHEL && slots > MinecraftVPP.MAX_SATCHEL_SLOTS) {
             throw new IllegalArgumentException("Satchel has too many slots.");
@@ -44,60 +44,56 @@ public class BaseBagItem extends TrinketItem {
         return this.type;
     }
 
-    public Inventory getInventory(ItemStack stack) {
+    public Container getInventory(ItemStack stack) {
         return getInventory(stack, null);
     }
 
-    public Inventory getInventory(ItemStack stack, PlayerEntity player) {
-        ContainerComponent comp = stack.getOrDefault(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT);
+    public Container getInventory(ItemStack stack, Player player) {
+        ItemContainerContents comp = stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
         BagInventory inventory = new BagInventory(this.slots, stack, player);
-        List<ItemStack> list = comp.stream().toList();
+        List<ItemStack> list = comp.itemCopies().toList();
         for (int i = 0; i < this.slots; i++) {
-            inventory.setStack(i, i < list.size() ? list.get(i) : ItemStack.EMPTY);
+            inventory.setItem(i, i < list.size() ? list.get(i) : ItemStack.EMPTY);
         }
         return inventory;
     }
 
     @Override
-    public void onEquip(ItemStack stack, SlotReference slotRef, LivingEntity entity) {
+    public void onEquip(ItemStack stack, TrinketSlotAccess slot, LivingEntity entity) {
         updateBagSlotsAndNotify(entity, stack);
     }
 
     @Override
-    public void onUnequip(ItemStack stack, SlotReference slotRef, LivingEntity entity) {
+    public void onUnequip(ItemStack stack, TrinketSlotAccess slot, LivingEntity entity) {
         updateBagSlotsAndNotify(entity, stack);
     }
 
     private void updateBagSlotsAndNotify(LivingEntity entity, ItemStack stack) {
-        if (!(entity instanceof PlayerEntity player))
+        if (!(entity instanceof Player player))
             return;
         InventoryUtility.updateBagSlots(player);
-        if (entity.getWorld().isClient)
+        if (entity.level().isClientSide())
             return;
-        if (entity instanceof ServerPlayerEntity serverPlayer) {
+        if (entity instanceof ServerPlayer serverPlayer) {
             ServerPlayNetworking.send(serverPlayer, new MinecraftVPPNetworking.EnableSlotsPayload());
         }
         if (DebugFlags.DEBUG_BAG_EVENTS) {
-            MinecraftVPP.LOGGER.info("Bag {}: {} by {}", entity.getWorld().isClient ? "client" : "server",
-                    stack.getName().getString(),
+            MinecraftVPP.LOGGER.info("Bag {}: {} by {}", entity.level().isClientSide() ? "client" : "server",
+                    stack.getHoverName().getString(),
                     entity.getName().getString());
         }
     }
 
     @Override
-    public boolean canEquip(ItemStack stack, SlotReference slot, LivingEntity entity) {
+    public boolean canEquip(ItemStack stack, TrinketSlotAccess slot, LivingEntity entity) {
         boolean isReplace = false;
-        ItemStack current = slot.inventory().getStack(slot.index());
+        ItemStack current = slot.get();
         if (current.getItem() instanceof BaseBagItem existing && existing.getType() == this.type) {
             isReplace = true;
         }
-        int currentCount = 0;
-        Optional<TrinketComponent> opt = TrinketsApi.getTrinketComponent(entity);
-        if (opt.isPresent()) {
-            TrinketComponent comp = opt.get();
-            currentCount = comp.getEquipped(s -> s.getItem() instanceof BaseBagItem b && b.getType() == this.type)
-                    .size();
-        }
+        int currentCount = TrinketsApi.getAttachment(entity)
+                .equipped(s -> s.getItem() instanceof BaseBagItem bag && bag.getType() == this.type, false)
+                .size();
         int maxSlots = (this.type == BagType.SATCHEL ? 1 : 2);
         return isReplace || currentCount < maxSlots;
     }
@@ -107,30 +103,30 @@ public class BaseBagItem extends TrinketItem {
         POUCH
     }
 
-    private static class BagInventory extends SimpleInventory {
+    private static class BagInventory extends SimpleContainer {
         private final ItemStack bagStack;
-        private final PlayerEntity player;
+        private final Player player;
 
-        public BagInventory(int size, ItemStack bagStack, PlayerEntity player) {
+        public BagInventory(int size, ItemStack bagStack, Player player) {
             super(size);
             this.bagStack = bagStack;
             this.player = player;
         }
 
         @Override
-        public void markDirty() {
-            DefaultedList<ItemStack> stacks = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-            for (int i = 0; i < this.size(); i++) {
-                stacks.set(i, this.getStack(i));
+        public void setChanged() {
+            NonNullList<ItemStack> stacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+            for (int i = 0; i < this.getContainerSize(); i++) {
+                stacks.set(i, this.getItem(i));
             }
-            if (this.player != null && !this.player.getWorld().isClient) {
-                bagStack.set(DataComponentTypes.CONTAINER, ContainerComponent.fromStacks(stacks));
+            if (this.player != null && !this.player.level().isClientSide()) {
+                bagStack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(stacks));
                 if (DebugFlags.DEBUG_BAG_EVENTS) {
                     MinecraftVPP.LOGGER.info("Updated bag stack component for player {}",
                             player.getName().getString());
                 }
             }
-            super.markDirty();
+            super.setChanged();
         }
     }
 }

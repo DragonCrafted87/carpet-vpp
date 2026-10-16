@@ -1,48 +1,37 @@
 package dragoncrafted87.vpp.bags;
 
-import dev.emi.trinkets.api.SlotReference;
-import dev.emi.trinkets.api.TrinketComponent;
-import dev.emi.trinkets.api.TrinketsApi;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.util.collection.DefaultedList;
-import java.util.Optional;
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
+import eu.pb4.trinkets.api.TrinketSlotAccess;
+import eu.pb4.trinkets.api.TrinketsApi;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class InventoryUtility {
-    public static final Identifier SLOT_TEXTURE = Identifier.of("vpp", "textures/gui/slots.png");
+    public static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("vpp", "textures/gui/slots.png");
 
-    public static ItemStack findBagItem(PlayerEntity player, BaseBagItem.BagType type, boolean right) {
+    public static ItemStack findBagItem(Player player, BaseBagItem.BagType type, boolean right) {
         ItemStack targetStack = ItemStack.EMPTY;
-        Optional<TrinketComponent> _component = TrinketsApi.getTrinketComponent(player);
-        if (_component.isPresent()) {
-            TrinketComponent component = _component.get();
-            for (Pair<SlotReference, ItemStack> pair : component.getAllEquipped()) {
-                ItemStack slotStack = pair.getRight();
-                if (slotStack.getItem() instanceof BaseBagItem) {
-                    BaseBagItem bagItem = (BaseBagItem) slotStack.getItem();
-                    if (bagItem.getType() == type) {
-                        SlotReference slotRef = pair.getLeft();
-                        if (type == BaseBagItem.BagType.SATCHEL || slotRef.index() == (right ? 1 : 0)) {
-                            targetStack = slotStack;
-                            break;
-                        }
-                    }
+        for (TrinketSlotAccess access : TrinketsApi.getAttachment(player).allEquipped(false)) {
+            ItemStack slotStack = access.get();
+            if (slotStack.getItem() instanceof BaseBagItem bagItem && bagItem.getType() == type) {
+                if (type == BaseBagItem.BagType.SATCHEL || access.index() == (right ? 1 : 0)) {
+                    targetStack = slotStack;
+                    break;
                 }
             }
         }
         return targetStack;
     }
 
-    public static void updateBagSlots(PlayerEntity player) {
-        MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
+    public static void updateBagSlots(Player player) {
+        MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.inventoryMenu;
         ItemStack satchelStack = findBagItem(player, BaseBagItem.BagType.SATCHEL, false);
-        DefaultedList<BagSlot> satchelSlots = handler.vpp$getSatchelSlots();
+        NonNullList<BagSlot> satchelSlots = handler.vpp$getSatchelSlots();
         for (int i = 0; i < MinecraftVPP.MAX_SATCHEL_SLOTS; i++) {
             BagSlot slot = satchelSlots.get(i);
             slot.setInventory(null);
@@ -50,7 +39,7 @@ public class InventoryUtility {
         }
         if (!satchelStack.isEmpty()) {
             BaseBagItem satchelItem = (BaseBagItem) satchelStack.getItem();
-            Inventory satchelInv = satchelItem.getInventory(satchelStack, player);
+            Container satchelInv = satchelItem.getInventory(satchelStack, player);
             for (int i = 0; i < satchelItem.getSlotCount(); i++) {
                 BagSlot slot = satchelSlots.get(i);
                 slot.setInventory(satchelInv);
@@ -58,7 +47,7 @@ public class InventoryUtility {
             }
         }
         ItemStack leftPouchStack = findBagItem(player, BaseBagItem.BagType.POUCH, false);
-        DefaultedList<BagSlot> leftPouchSlots = handler.vpp$getLeftPouchSlots();
+        NonNullList<BagSlot> leftPouchSlots = handler.vpp$getLeftPouchSlots();
         for (int i = 0; i < MinecraftVPP.MAX_POUCH_SLOTS; i++) {
             BagSlot slot = leftPouchSlots.get(i);
             slot.setInventory(null);
@@ -66,7 +55,7 @@ public class InventoryUtility {
         }
         if (!leftPouchStack.isEmpty()) {
             BaseBagItem leftPouchItem = (BaseBagItem) leftPouchStack.getItem();
-            Inventory leftPouchInv = leftPouchItem.getInventory(leftPouchStack, player);
+            Container leftPouchInv = leftPouchItem.getInventory(leftPouchStack, player);
             for (int i = 0; i < leftPouchItem.getSlotCount(); i++) {
                 BagSlot slot = leftPouchSlots.get(i);
                 slot.setInventory(leftPouchInv);
@@ -74,7 +63,7 @@ public class InventoryUtility {
             }
         }
         ItemStack rightPouchStack = findBagItem(player, BaseBagItem.BagType.POUCH, true);
-        DefaultedList<BagSlot> rightPouchSlots = handler.vpp$getRightPouchSlots();
+        NonNullList<BagSlot> rightPouchSlots = handler.vpp$getRightPouchSlots();
         for (int i = 0; i < MinecraftVPP.MAX_POUCH_SLOTS; i++) {
             BagSlot slot = rightPouchSlots.get(i);
             slot.setInventory(null);
@@ -82,7 +71,7 @@ public class InventoryUtility {
         }
         if (!rightPouchStack.isEmpty()) {
             BaseBagItem rightPouchItem = (BaseBagItem) rightPouchStack.getItem();
-            Inventory rightPouchInv = rightPouchItem.getInventory(rightPouchStack, player);
+            Container rightPouchInv = rightPouchItem.getInventory(rightPouchStack, player);
             for (int i = 0; i < rightPouchItem.getSlotCount(); i++) {
                 BagSlot slot = rightPouchSlots.get(i);
                 slot.setInventory(rightPouchInv);

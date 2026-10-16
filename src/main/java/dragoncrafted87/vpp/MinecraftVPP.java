@@ -5,29 +5,33 @@ import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.beacons.BeaconChunkLoaderData;
 import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
+import eu.pb4.trinkets.api.component.TrinketDataComponents;
+import eu.pb4.trinkets.api.component.TrinketEquippable;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ChunkTicketType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,61 +40,68 @@ public class MinecraftVPP implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPP");
     public static final int MAX_SATCHEL_SLOTS = 18;
     public static final int MAX_POUCH_SLOTS = 6;
-    public static RegistryKey<ItemGroup> ITEM_GROUP_KEY = RegistryKey.of(RegistryKeys.ITEM_GROUP,
-            Identifier.of(MOD_ID, "itemgroup"));
-    public static final Item SATCHEL_STRAP = new Item(
-            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "satchel_strap"))));
+    public static final ResourceKey<CreativeModeTab> ITEM_GROUP_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            Identifier.fromNamespaceAndPath(MOD_ID, "itemgroup"));
+    public static final Item SATCHEL_STRAP = new Item(itemProperties("satchel_strap"));
     public static final BaseBagItem SATCHEL = new BaseBagItem(
-            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "satchel")))
-                    .maxCount(1),
+            itemProperties("satchel").stacksTo(1)
+                    .component(TrinketDataComponents.EQUIPMENT, trinket("chest/satchel")),
             MAX_SATCHEL_SLOTS / 2,
             BagType.SATCHEL);
     public static final BaseBagItem UPGRADED_SATCHEL = new BaseBagItem(
-            new Item.Settings()
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "upgraded_satchel")))
-                    .maxCount(1).rarity(Rarity.RARE),
+            itemProperties("upgraded_satchel").stacksTo(1).rarity(Rarity.RARE)
+                    .component(TrinketDataComponents.EQUIPMENT, trinket("chest/satchel")),
             MAX_SATCHEL_SLOTS,
             BagType.SATCHEL);
     public static final BaseBagItem POUCH = new BaseBagItem(
-            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "pouch")))
-                    .maxCount(1),
+            itemProperties("pouch").stacksTo(1)
+                    .component(TrinketDataComponents.EQUIPMENT, trinket("legs/pouch")),
             MAX_POUCH_SLOTS / 2, BagType.POUCH);
     public static final BaseBagItem UPGRADED_POUCH = new BaseBagItem(
-            new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "upgraded_pouch")))
-                    .maxCount(1).rarity(Rarity.RARE),
+            itemProperties("upgraded_pouch").stacksTo(1).rarity(Rarity.RARE)
+                    .component(TrinketDataComponents.EQUIPMENT, trinket("legs/pouch")),
             MAX_POUCH_SLOTS,
             BagType.POUCH);
-    public static final ChunkTicketType BEACON = new ChunkTicketType(300, false, ChunkTicketType.Use.LOADING);
+    public static final TicketType BEACON = new TicketType(300, TicketType.FLAG_LOADING);
+
+    private static Item.Properties itemProperties(String path) {
+        return new Item.Properties()
+                .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, path)));
+    }
+
+    private static TrinketEquippable trinket(String slot) {
+        return TrinketEquippable.DEFAULT.withSlots(slot).withEquipOnInteract(true);
+    }
 
     @Override
     public void onInitialize() {
         LOGGER.info("MinecraftVPP initialized successfully");
-        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "satchel_strap"), SATCHEL_STRAP);
-        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "satchel"), SATCHEL);
-        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
-        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "pouch"), POUCH);
-        Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
-        Registry.register(Registries.ITEM_GROUP, ITEM_GROUP_KEY,
-                FabricItemGroup.builder()
-                        .displayName(Text.translatable("itemGroup.vpp.itemgroup"))
+        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "satchel_strap"), SATCHEL_STRAP);
+        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "satchel"), SATCHEL);
+        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "upgraded_satchel"), UPGRADED_SATCHEL);
+        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "pouch"), POUCH);
+        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "upgraded_pouch"), UPGRADED_POUCH);
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ITEM_GROUP_KEY,
+                FabricCreativeModeTab.builder()
+                        .title(Component.translatable("itemGroup.vpp.itemgroup"))
                         .icon(() -> new ItemStack(MinecraftVPP.SATCHEL))
                         .build());
-        ItemGroupEvents.modifyEntriesEvent(ITEM_GROUP_KEY).register(content -> {
-            content.add(SATCHEL_STRAP);
-            content.add(SATCHEL);
-            content.add(UPGRADED_SATCHEL);
-            content.add(POUCH);
-            content.add(UPGRADED_POUCH);
+        CreativeModeTabEvents.modifyOutputEvent(ITEM_GROUP_KEY).register(content -> {
+            content.accept(SATCHEL_STRAP);
+            content.accept(SATCHEL);
+            content.accept(UPGRADED_SATCHEL);
+            content.accept(POUCH);
+            content.accept(UPGRADED_POUCH);
         });
-        PayloadTypeRegistry.playS2C().register(MinecraftVPPNetworking.EnableSlotsPayload.ID,
+        PayloadTypeRegistry.clientboundPlay().register(MinecraftVPPNetworking.EnableSlotsPayload.ID,
                 MinecraftVPPNetworking.EnableSlotsPayload.CODEC);
-        ServerWorldEvents.LOAD.register((server, world) -> {
-            BeaconChunkLoaderData data = BeaconChunkLoaderData.get(world);
+        ServerLevelEvents.LOAD.register((server, level) -> {
+            BeaconChunkLoaderData data = BeaconChunkLoaderData.get(level);
             Set<BlockPos> toRemove = new HashSet<>();
-            for (BlockPos pos : new HashSet<>(data.activeBeacons)) { // Copy to avoid concurrent mod
-                if (world.getBlockState(pos).isOf(Blocks.BEACON)) {
-                    ChunkPos chunkPos = new ChunkPos(pos);
-                    world.getChunkManager().addTicket(BEACON, chunkPos, 5); // Bootstrap with max radius
+            for (BlockPos pos : new HashSet<>(data.activeBeacons)) {
+                if (level.getBlockState(pos).is(Blocks.BEACON)) {
+                    ChunkPos chunkPos = ChunkPos.containing(pos);
+                    level.getChunkSource().addTicketWithRadius(BEACON, chunkPos, 5);
                     if (DebugFlags.DEBUG_BEACON_LOADING) {
                         LOGGER.info("Bootstrapped chunk ticket for saved beacon at {} on world load", pos.toString());
                     }
@@ -106,11 +117,11 @@ public class MinecraftVPP implements ModInitializer {
                 data.removeBeacon(pos);
             }
         });
-        Identifier afterPhase = Identifier.of(MOD_ID, "after");
+        Identifier afterPhase = Identifier.fromNamespaceAndPath(MOD_ID, "after");
         ServerPlayConnectionEvents.JOIN.addPhaseOrdering(Event.DEFAULT_PHASE, afterPhase);
         ServerPlayConnectionEvents.JOIN.register(afterPhase, (handler, sender, server) -> {
             InventoryUtility.updateBagSlots(handler.player);
-            sender.sendPacket(new MinecraftVPPNetworking.EnableSlotsPayload());
+            ServerPlayNetworking.send(handler.player, new MinecraftVPPNetworking.EnableSlotsPayload());
         });
     }
 }

@@ -3,19 +3,18 @@ package dragoncrafted87.vpp.gui;
 import com.google.common.math.IntMath;
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.bags.item.BagTooltipData;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import java.lang.reflect.Field;
+
 import java.math.RoundingMode;
 
-public class BagTooltipComponent implements TooltipComponent {
-    private final DefaultedList<ItemStack> inventory;
+public class BagTooltipComponent implements ClientTooltipComponent {
+    private final NonNullList<ItemStack> inventory;
     private final int slotCount;
 
     public BagTooltipComponent(BagTooltipData data) {
@@ -24,38 +23,35 @@ public class BagTooltipComponent implements TooltipComponent {
     }
 
     @Override
-    public int getHeight(TextRenderer textRenderer) {
+    public int getHeight(Font font) {
         return (18 * IntMath.divide(slotCount, 6, RoundingMode.UP)) + 2;
     }
 
     @Override
-    public int getWidth(TextRenderer textRenderer) {
+    public int getWidth(Font font) {
         return 18 * (slotCount < 6 ? slotCount : 6);
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
+    public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor context) {
         int originalX = x;
-        // Draw all slots first
         int tx = x;
         int ty = y;
         for (int i = 0; i < slotCount; i++) {
-            this.drawSlot(context, tx, ty);
+            context.blit(RenderPipelines.GUI_TEXTURED, InventoryUtility.SLOT_TEXTURE, tx, ty, 7.0f, 7.0f, 18, 18, 256, 256);
             tx += 18;
             if ((i + 1) % 6 == 0) {
                 ty += 18;
                 tx = originalX;
             }
         }
-        // Draw all items
-        Matrix3x2fStack matrices = context.getMatrices();
+        Matrix3x2fStack matrices = context.pose();
         matrices.pushMatrix();
-        matrices.translate(0.0f, 0.0f);
         tx = x;
         ty = y;
         for (int i = 0; i < slotCount; i++) {
             ItemStack itemStack = this.inventory.get(i);
-            context.drawItem(itemStack, tx + 1, ty + 1);
+            context.item(itemStack, tx + 1, ty + 1);
             tx += 18;
             if ((i + 1) % 6 == 0) {
                 ty += 18;
@@ -63,17 +59,14 @@ public class BagTooltipComponent implements TooltipComponent {
             }
         }
         matrices.popMatrix();
-        // Draw all stack counts
         matrices.pushMatrix();
-        matrices.translate(0.0f, 0.0f);
         tx = x;
         ty = y;
         for (int i = 0; i < slotCount; i++) {
             ItemStack itemStack = this.inventory.get(i);
             if (itemStack.getCount() > 1) {
                 String count = String.valueOf(itemStack.getCount());
-                context.drawTextWithShadow(textRenderer, count, tx + 19 - 2 - textRenderer.getWidth(count), ty + 6 + 3,
-                        16777215);
+                context.text(font, count, tx + 19 - 2 - font.width(count), ty + 6 + 3, 16777215, true);
             }
             tx += 18;
             if ((i + 1) % 6 == 0) {
@@ -82,18 +75,5 @@ public class BagTooltipComponent implements TooltipComponent {
             }
         }
         matrices.popMatrix();
-    }
-
-    private void drawSlot(DrawContext context, int x, int y) {
-        RenderLayer layer = RenderLayer.getText(InventoryUtility.SLOT_TEXTURE);
-        RenderPipeline pipeline;
-        try {
-            Field field = RenderLayer.MultiPhase.class.getDeclaredField("pipeline");
-            field.setAccessible(true);
-            pipeline = (RenderPipeline) field.get(layer);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to access RenderPipeline", e);
-        }
-        context.drawTexture(pipeline, InventoryUtility.SLOT_TEXTURE, x, y, 7.0f, 7.0f, 18, 18, 256, 256);
     }
 }

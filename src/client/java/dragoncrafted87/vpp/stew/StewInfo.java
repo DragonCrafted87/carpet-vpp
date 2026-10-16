@@ -2,37 +2,38 @@ package dragoncrafted87.vpp.stew;
 
 import dragoncrafted87.vpp.DebugFlags;
 import dragoncrafted87.vpp.MinecraftVPPClient;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.SuspiciousStewEffectsComponent;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.StringHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.SuspiciousStewEffects;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class StewInfo {
-    public static void onInjectTooltip(Object stackIn, List<Text> list) {
-        ItemStack stack = (ItemStack) stackIn;
+    public static void onInjectTooltip(ItemStack stack, List<Component> list) {
         list.addAll(getStewEffectTexts(stack));
         if (!list.isEmpty() && DebugFlags.DEBUG_STEW_INFO) {
-            MinecraftVPPClient.LOGGER.info("Added stew effects to tooltip for item: {}", stack.getName().getString());
+            MinecraftVPPClient.LOGGER.info("Added stew effects to tooltip for item: {}", stack.getHoverName().getString());
         }
     }
-    public static List<Text> getStewEffectTexts(ItemStack stack) {
-        List<Text> effectsText = new ArrayList<>();
-        if (stack.getItem() == Items.SUSPICIOUS_STEW) {
-            SuspiciousStewEffectsComponent comp = stack.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
-            for (SuspiciousStewEffectsComponent.StewEffect entry : comp.effects()) {
-                StatusEffect effect = entry.effect().value();
+
+    public static List<Component> getStewEffectTexts(ItemStack stack) {
+        List<Component> effectsText = new ArrayList<>();
+        if (stack.is(Items.SUSPICIOUS_STEW)) {
+            SuspiciousStewEffects comp = stack.getOrDefault(DataComponents.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffects.EMPTY);
+            for (SuspiciousStewEffects.Entry entry : comp.effects()) {
+                MobEffect effect = entry.effect().value();
                 int duration = entry.duration();
                 if (effect != null) {
-                    String time = StringHelper.formatTicks(duration, 20.0F);
-                    effectsText.add(Text.translatable(effect.getTranslationKey())
+                    String time = StringUtil.formatTickDuration(duration, 20.0F);
+                    effectsText.add(Component.translatable(effect.getDescriptionId())
                             .append(" " + time)
-                            .formatted(Formatting.GRAY));
+                            .withStyle(ChatFormatting.GRAY));
                 }
             }
         }

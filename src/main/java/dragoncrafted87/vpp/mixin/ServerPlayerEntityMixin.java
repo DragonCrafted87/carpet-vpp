@@ -7,59 +7,42 @@ import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.GameRules;
+import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public class ServerPlayerEntityMixin {
-    @Inject(method = "onDeath", at = @At("HEAD"))
+    @Inject(method = "die", at = @At("HEAD"))
     private void vpp$attemptFixGraveMods(DamageSource source, CallbackInfo callbackInfo) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
-        if (!player.getServer().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
-            ItemStack backStack = InventoryUtility.findBagItem(player, BagType.SATCHEL, false);
-            if (!backStack.isEmpty()) {
-                BaseBagItem bagItem = (BaseBagItem) backStack.getItem();
-                int slots = bagItem.getSlotCount();
-                DefaultedList<BagSlot> bagSlots = handler.vpp$getSatchelSlots();
-                for (int i = 0; i < slots; i++) {
-                    BagSlot slot = bagSlots.get(i);
-                    slot.setInventory(null);
-                    slot.setEnabled(false);
-                }
-                ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
-            }
-            ItemStack leftPouchStack = InventoryUtility.findBagItem(player, BagType.POUCH, false);
-            if (!leftPouchStack.isEmpty()) {
-                BaseBagItem bagItem = (BaseBagItem) leftPouchStack.getItem();
-                int slots = bagItem.getSlotCount();
-                DefaultedList<BagSlot> bagSlots = handler.vpp$getLeftPouchSlots();
-                for (int i = 0; i < slots; i++) {
-                    BagSlot slot = bagSlots.get(i);
-                    slot.setInventory(null);
-                    slot.setEnabled(false);
-                }
-                ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
-            }
-            ItemStack rightPouchStack = InventoryUtility.findBagItem(player, BagType.POUCH, true);
-            if (!rightPouchStack.isEmpty()) {
-                BaseBagItem bagItem = (BaseBagItem) rightPouchStack.getItem();
-                int slots = bagItem.getSlotCount();
-                DefaultedList<BagSlot> bagSlots = handler.vpp$getRightPouchSlots();
-                for (int i = 0; i < slots; i++) {
-                    BagSlot slot = bagSlots.get(i);
-                    slot.setInventory(null);
-                    slot.setEnabled(false);
-                }
-                ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
-            }
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.inventoryMenu;
+        ServerLevel level = (ServerLevel) player.level();
+        if (!level.getServer().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+            clearBag(player, handler.vpp$getSatchelSlots(), InventoryUtility.findBagItem(player, BagType.SATCHEL, false));
+            clearBag(player, handler.vpp$getLeftPouchSlots(), InventoryUtility.findBagItem(player, BagType.POUCH, false));
+            clearBag(player, handler.vpp$getRightPouchSlots(), InventoryUtility.findBagItem(player, BagType.POUCH, true));
         }
+    }
+
+    private static void clearBag(ServerPlayer player, NonNullList<BagSlot> bagSlots, ItemStack bagStack) {
+        if (bagStack.isEmpty()) {
+            return;
+        }
+        BaseBagItem bagItem = (BaseBagItem) bagStack.getItem();
+        int slots = bagItem.getSlotCount();
+        for (int i = 0; i < slots; i++) {
+            BagSlot slot = bagSlots.get(i);
+            slot.setInventory(null);
+            slot.setEnabled(false);
+        }
+        ServerPlayNetworking.send(player, new MinecraftVPPNetworking.EnableSlotsPayload());
     }
 }
