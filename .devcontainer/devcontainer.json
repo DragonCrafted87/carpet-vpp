@@ -1,0 +1,27 @@
+{
+    "name": "carpet-vpp",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "remoteUser": "root",
+    "containerEnv": {
+        "DISPLAY": ":99",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "XDG_RUNTIME_DIR": "/tmp"
+    },
+    "postCreateCommand": "bash .devcontainer/setup.sh",
+    "postStartCommand": "bash .devcontainer/xvfb.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "vscjava.vscode-gradle"
+            ],
+            "settings": {
+                "java.jdt.ls.java.home": "/opt/java/openjdk",
+                "java.import.gradle.java.home": "/opt/java/openjdk",
+                "java.configuration.updateBuildConfiguration": "automatic"
+            }
+        }
+    }
+}

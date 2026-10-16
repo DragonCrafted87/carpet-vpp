@@ -1,44 +1,37 @@
 {
+    "version": "0.2.0",
     "configurations": [
         {
-            "args": "",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/run",
-            "env": {},
-            "mainClass": "net.fabricmc.devlaunchinjector.Main",
+            "type": "java",
             "name": "Minecraft Client",
-            "projectName": "carpet-vpp",
             "request": "launch",
-            "stopOnEntry": false,
-            "type": "java",
-            "vmArgs": "-Dfabric.dli.config=D:\\git-home\\minecraft\\carpet-vpp\\.gradle\\loom-cache\\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient"
-        },
-        {
-            "args": "nogui",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/build/datagen",
-            "env": {},
             "mainClass": "net.fabricmc.devlaunchinjector.Main",
-            "name": "Minecraft Datagen",
-            "projectName": "carpet-vpp",
-            "request": "launch",
-            "stopOnEntry": false,
-            "type": "java",
-            "vmArgs": "-Dfabric.dli.config=D:\\git-home\\minecraft\\carpet-vpp\\.gradle\\loom-cache\\launch.cfg -Dfabric.dli.env=server -Dfabric-api.datagen -Dfabric-api.datagen.output-dir=D:\\git-home\\minecraft\\carpet-vpp\\src\\main\\generated -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"
-        },
-        {
-            "args": "nogui",
-            "console": "integratedTerminal",
+            "projectName": "vpp",
             "cwd": "${workspaceFolder}/run",
-            "env": {},
-            "mainClass": "net.fabricmc.devlaunchinjector.Main",
-            "name": "Minecraft Server",
-            "projectName": "carpet-vpp",
-            "request": "launch",
-            "stopOnEntry": false,
+            "console": "integratedTerminal",
+            "vmArgs": "-Dfabric.dli.config=${workspaceFolder}/.gradle/loom-cache/launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient"
+        },
+        {
             "type": "java",
-            "vmArgs": "-Dfabric.dli.config=D:\\git-home\\minecraft\\carpet-vpp\\.gradle\\loom-cache\\launch.cfg -Dfabric.dli.env=server -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"
+            "name": "Minecraft Server",
+            "request": "launch",
+            "mainClass": "net.fabricmc.devlaunchinjector.Main",
+            "projectName": "vpp",
+            "cwd": "${workspaceFolder}/run",
+            "args": "nogui",
+            "console": "integratedTerminal",
+            "vmArgs": "-Dfabric.dli.config=${workspaceFolder}/.gradle/loom-cache/launch.cfg -Dfabric.dli.env=server -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"
+        },
+        {
+            "type": "java",
+            "name": "Minecraft Datagen",
+            "request": "launch",
+            "mainClass": "net.fabricmc.devlaunchinjector.Main",
+            "projectName": "vpp",
+            "cwd": "${workspaceFolder}/build/datagen",
+            "args": "nogui",
+            "console": "integratedTerminal",
+            "vmArgs": "-Dfabric.dli.config=${workspaceFolder}/.gradle/loom-cache/launch.cfg -Dfabric.dli.env=server -Dfabric-api.datagen -Dfabric-api.datagen.output-dir=${workspaceFolder}/src/main/generated -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"
         }
-    ],
-    "version": "0.2.0"
+    ]
 }
