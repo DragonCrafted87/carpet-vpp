@@ -1,0 +1,47 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: check-added-large-files
+  - id: check-merge-conflict
+  - id: detect-private-key
+  - id: end-of-file-fixer
+  - id: fix-byte-order-marker
+  - id: mixed-line-ending
+    args:
+    - --fix=lf
+  - id: trailing-whitespace
+  - id: check-yaml
+  - id: check-toml
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.16.0
+  hooks:
+  - id: pretty-format-yaml
+    args:
+    - --autofix
+    - --indent
+    - '2'
+  - id: pretty-format-java
+    args:
+    - --autofix
+    - --aosp
+    - --google-java-formatter-version=1.37.0
+    - --formatter-jar-checksum=834b2a0c38cb774953322a84b5ca3f2f40dd3156650b3cd44d3b744345962f7a
+- repo: https://github.com/adrienverge/yamllint
+  rev: v1.38.0
+  hooks:
+  - id: yamllint
+- repo: https://github.com/executablebooks/mdformat
+  rev: 1.0.0
+  hooks:
+  - id: mdformat
+    args:
+    - --end-of-line
+    - lf
+    additional_dependencies:
+    - mdformat-gfm
+    - mdformat-frontmatter
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.49.1
+  hooks:
+  - id: markdownlint

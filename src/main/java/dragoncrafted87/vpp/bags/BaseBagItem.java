@@ -3,9 +3,11 @@ package dragoncrafted87.vpp.bags;
 import dragoncrafted87.vpp.DebugFlags;
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
+
 import eu.pb4.trinkets.api.TrinketSlotAccess;
 import eu.pb4.trinkets.api.TrinketsApi;
 import eu.pb4.trinkets.api.callback.TrinketCallback;
+
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -49,7 +51,8 @@ public class BaseBagItem extends Item implements TrinketCallback {
     }
 
     public Container getInventory(ItemStack stack, Player player) {
-        ItemContainerContents comp = stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        ItemContainerContents comp =
+                stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
         BagInventory inventory = new BagInventory(this.slots, stack, player);
         List<ItemStack> list = comp.itemCopies().toList();
         for (int i = 0; i < this.slots; i++) {
@@ -69,16 +72,17 @@ public class BaseBagItem extends Item implements TrinketCallback {
     }
 
     private void updateBagSlotsAndNotify(LivingEntity entity, ItemStack stack) {
-        if (!(entity instanceof Player player))
-            return;
+        if (!(entity instanceof Player player)) return;
         InventoryUtility.updateBagSlots(player);
-        if (entity.level().isClientSide())
-            return;
+        if (entity.level().isClientSide()) return;
         if (entity instanceof ServerPlayer serverPlayer) {
-            ServerPlayNetworking.send(serverPlayer, new MinecraftVPPNetworking.EnableSlotsPayload());
+            ServerPlayNetworking.send(
+                    serverPlayer, new MinecraftVPPNetworking.EnableSlotsPayload());
         }
         if (DebugFlags.DEBUG_BAG_EVENTS) {
-            MinecraftVPP.LOGGER.info("Bag {}: {} by {}", entity.level().isClientSide() ? "client" : "server",
+            MinecraftVPP.LOGGER.info(
+                    "Bag {}: {} by {}",
+                    entity.level().isClientSide() ? "client" : "server",
                     stack.getHoverName().getString(),
                     entity.getName().getString());
         }
@@ -91,9 +95,14 @@ public class BaseBagItem extends Item implements TrinketCallback {
         if (current.getItem() instanceof BaseBagItem existing && existing.getType() == this.type) {
             isReplace = true;
         }
-        int currentCount = TrinketsApi.getAttachment(entity)
-                .equipped(s -> s.getItem() instanceof BaseBagItem bag && bag.getType() == this.type, false)
-                .size();
+        int currentCount =
+                TrinketsApi.getAttachment(entity)
+                        .equipped(
+                                s ->
+                                        s.getItem() instanceof BaseBagItem bag
+                                                && bag.getType() == this.type,
+                                false)
+                        .size();
         int maxSlots = (this.type == BagType.SATCHEL ? 1 : 2);
         return isReplace || currentCount < maxSlots;
     }
@@ -115,14 +124,16 @@ public class BaseBagItem extends Item implements TrinketCallback {
 
         @Override
         public void setChanged() {
-            NonNullList<ItemStack> stacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+            NonNullList<ItemStack> stacks =
+                    NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
             for (int i = 0; i < this.getContainerSize(); i++) {
                 stacks.set(i, this.getItem(i));
             }
             if (this.player != null && !this.player.level().isClientSide()) {
                 bagStack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(stacks));
                 if (DebugFlags.DEBUG_BAG_EVENTS) {
-                    MinecraftVPP.LOGGER.info("Updated bag stack component for player {}",
+                    MinecraftVPP.LOGGER.info(
+                            "Updated bag stack component for player {}",
                             player.getName().getString());
                 }
             }

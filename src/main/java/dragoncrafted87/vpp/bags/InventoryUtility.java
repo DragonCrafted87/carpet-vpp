@@ -3,8 +3,10 @@ package dragoncrafted87.vpp.bags;
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
+
 import eu.pb4.trinkets.api.TrinketSlotAccess;
 import eu.pb4.trinkets.api.TrinketsApi;
+
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
@@ -12,7 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class InventoryUtility {
-    public static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("vpp", "textures/gui/slots.png");
+    public static final Identifier SLOT_TEXTURE =
+            Identifier.fromNamespaceAndPath("vpp", "textures/gui/slots.png");
 
     public static ItemStack findBagItem(Player player, BaseBagItem.BagType type, boolean right) {
         ItemStack targetStack = ItemStack.EMPTY;

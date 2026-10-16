@@ -2,8 +2,10 @@ package dragoncrafted87.vpp.gametest;
 
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.bags.BaseBagItem;
+
 import eu.pb4.trinkets.api.component.TrinketDataComponents;
 import eu.pb4.trinkets.api.component.TrinketEquippable;
+
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.NonNullList;
@@ -46,7 +48,8 @@ public class VppGameTest implements CustomTestMethodInvoker {
     }
 
     @Override
-    public void invokeTestMethod(GameTestHelper context, Method method) throws ReflectiveOperationException {
+    public void invokeTestMethod(GameTestHelper context, Method method)
+            throws ReflectiveOperationException {
         method.invoke(this, context);
     }
 
@@ -67,21 +70,24 @@ public class VppGameTest implements CustomTestMethodInvoker {
     private static void assertTrinketSlot(GameTestHelper helper, BaseBagItem bag, String slot) {
         TrinketEquippable equipment = new ItemStack(bag).get(TrinketDataComponents.EQUIPMENT);
         if (equipment == null || !equipment.allowedSlots().equals(java.util.List.of(slot))) {
-            throw helper.assertionException("%s slots were %s", bag, equipment == null ? null : equipment.allowedSlots());
+            throw helper.assertionException(
+                    "%s slots were %s", bag, equipment == null ? null : equipment.allowedSlots());
         }
     }
 
     private static void assertDestroyTime(GameTestHelper helper, Block block, float expected) {
         float actual = block.defaultDestroyTime();
         if (actual != expected) {
-            throw helper.assertionException("%s destroy time was %s, expected %s", block, actual, expected);
+            throw helper.assertionException(
+                    "%s destroy time was %s, expected %s", block, actual, expected);
         }
     }
 
     private static void assertResistance(GameTestHelper helper, Block block, float expected) {
         float actual = block.getExplosionResistance();
         if (actual != expected) {
-            throw helper.assertionException("%s explosion resistance was %s, expected %s", block, actual, expected);
+            throw helper.assertionException(
+                    "%s explosion resistance was %s, expected %s", block, actual, expected);
         }
     }
 

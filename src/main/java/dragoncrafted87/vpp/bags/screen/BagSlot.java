@@ -1,6 +1,7 @@
 package dragoncrafted87.vpp.bags.screen;
 
 import dragoncrafted87.vpp.bags.BaseBagItem;
+
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -26,8 +27,7 @@ public class BagSlot extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        if (stack.getItem() instanceof BaseBagItem)
-            return false;
+        if (stack.getItem() instanceof BaseBagItem) return false;
         return enabled && inventory != null;
     }
 
@@ -43,15 +43,13 @@ public class BagSlot extends Slot {
 
     @Override
     public ItemStack getItem() {
-        if (!enabled || inventory == null)
-            return ItemStack.EMPTY;
+        if (!enabled || inventory == null) return ItemStack.EMPTY;
         return this.inventory.getItem(this.index);
     }
 
     @Override
     public void set(ItemStack stack) {
-        if (!enabled || inventory == null)
-            return;
+        if (!enabled || inventory == null) return;
         this.inventory.setItem(this.index, stack);
     }
 
@@ -63,22 +61,19 @@ public class BagSlot extends Slot {
 
     @Override
     public void setChanged() {
-        if (!enabled || inventory == null)
-            return;
+        if (!enabled || inventory == null) return;
         this.inventory.setChanged();
     }
 
     @Override
     public ItemStack remove(int amount) {
-        if (!enabled || inventory == null)
-            return ItemStack.EMPTY;
+        if (!enabled || inventory == null) return ItemStack.EMPTY;
         return this.inventory.removeItem(this.index, amount);
     }
 
     @Override
     public int getMaxStackSize() {
-        if (!enabled || inventory == null)
-            return 0;
+        if (!enabled || inventory == null) return 0;
         return this.inventory.getMaxStackSize();
     }
 }

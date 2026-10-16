@@ -3,11 +3,13 @@ package dragoncrafted87.vpp.mixin;
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
+
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,20 +18,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // Higher priority to apply after trinkets
 @Mixin(value = InventoryMenu.class, priority = 1100)
-public abstract class PlayerScreenHandlerMixin extends AbstractContainerMenu implements MinecraftVPPScreenHandler {
+public abstract class PlayerScreenHandlerMixin extends AbstractContainerMenu
+        implements MinecraftVPPScreenHandler {
     protected PlayerScreenHandlerMixin() {
         super(null, 0);
     }
 
-    @Unique
-    public final NonNullList<BagSlot> satchelSlots = NonNullList.create();
-    @Unique
-    public final NonNullList<BagSlot> leftPouchSlots = NonNullList.create();
-    @Unique
-    public final NonNullList<BagSlot> rightPouchSlots = NonNullList.create();
+    @Unique public final NonNullList<BagSlot> satchelSlots = NonNullList.create();
+    @Unique public final NonNullList<BagSlot> leftPouchSlots = NonNullList.create();
+    @Unique public final NonNullList<BagSlot> rightPouchSlots = NonNullList.create();
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void vpp$addSlots(Inventory inventory, boolean onServer, Player owner, CallbackInfo callbackInfo) {
+    private void vpp$addSlots(
+            Inventory inventory, boolean onServer, Player owner, CallbackInfo callbackInfo) {
         MinecraftVPP.LOGGER.info("Adding bag slots to InventoryMenu, onServer: " + onServer);
         int x = 8;
         int y = 168;
