@@ -1,23 +1,26 @@
 # Dev container
 
-The container is Java 25 with Gradle, Xvfb, and Mesa, so unit tests, the dedicated server, and the client can run without a desktop GPU. Open the folder in VS Code and choose **Dev Containers: Reopen in Container**. The first start runs `.devcontainer/setup.sh`, which generates the Loom launch config and downloads Minecraft assets. Later starts run `.devcontainer/xvfb.sh`, which opens display `:99`.
+The image is OpenMandriva Rock with Temurin 25. Rock's own JDK packages stop at 24, and this mod needs Java 25. Gradle is the wrapper in the repo. The container user is `dev`. Opening the folder with **Dev Containers: Reopen in Container** runs `.devcontainer/post-create.sh`, which generates the Loom launch config, downloads Minecraft assets, and sources `.devcontainer/bashrc` from `~/.bashrc`. Closing the VS Code window stops the container (`shutdownAction`).
 
-Inside the container, the launch configs in `.vscode/launch.json` are separate:
-
-- **Minecraft Client** starts the Fabric client.
-- **Minecraft Server** starts the dedicated server with `nogui`.
-- **Minecraft Datagen** writes generated data under `src/main/generated`.
-
-The tasks in `.vscode/tasks.json` run `./gradlew test`, `./gradlew runGameTest`, and `./gradlew runClientGameTest`.
-
-From the host, with Docker installed, the same container can run one command:
+Source the helpers on the host or inside the container:
 
 ```bash
-./.devcontainer/run-in-container.sh ./gradlew test
-./.devcontainer/run-in-container.sh ./gradlew runGameTest
-./.devcontainer/run-in-container.sh ./gradlew runServer
+source .devcontainer/bashrc
+vpp-help
 ```
 
-With no arguments, that script opens a shell in the container. It uses the `devcontainer` command when that is on `PATH`, and otherwise `npx @devcontainers/cli`. The first run builds the image from `.devcontainer/Dockerfile`.
+Host commands start the container when it is not already up, then run inside it:
 
-`DragonCrafted87/prayers` on `develop` was not readable from this environment (GitHub returned 404), so this script follows the public devcontainer CLI (`up`, then `exec`) and was not checked against that repository.
+```bash
+vpp-test
+vpp-game-test
+vpp-client-test
+vpp-server
+vpp-client
+vpp-exec ./gradlew build
+vpp-down
+```
+
+`vpp-client` and `vpp-client-test` use the host Wayland socket when `WAYLAND_DISPLAY` is set. With no display they start Xvfb on `:99`. An interactive host shell traps exit and hangup: the last such shell usually runs `vpp-down`.
+
+Inside the container, `.vscode/launch.json` still has separate **Minecraft Client** and **Minecraft Server** launches, plus datagen.

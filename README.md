@@ -1,9 +1,10 @@
 # carpet-vpp
 
-Development and test commands can run in the dev container. See [.devcontainer/README.md](.devcontainer/README.md). From a machine with Docker:
+Development and test commands can run in the dev container. See [.devcontainer/README.md](.devcontainer/README.md). From a machine with Docker and the devcontainer CLI:
 
 ```bash
-./.devcontainer/run-in-container.sh ./gradlew test
+source .devcontainer/bashrc
+vpp-test
 ```
 
 ## Contains Forked versions of the following mods:

@@ -1,16 +1,15 @@
 {
-    "name": "carpet-vpp",
     "build": {
+        "context": "..",
         "dockerfile": "Dockerfile"
     },
-    "remoteUser": "root",
     "containerEnv": {
-        "DISPLAY": ":99",
-        "LIBGL_ALWAYS_SOFTWARE": "1",
-        "XDG_RUNTIME_DIR": "/tmp"
+        "DISPLAY": "${localEnv:DISPLAY}",
+        "JAVA_HOME": "/usr/lib/jvm/java-25-temurin",
+        "WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+        "XDG_RUNTIME_DIR": "/tmp/host-xdg",
+        "XDG_SESSION_TYPE": "${localEnv:XDG_SESSION_TYPE}"
     },
-    "postCreateCommand": "bash .devcontainer/setup.sh",
-    "postStartCommand": "bash .devcontainer/xvfb.sh",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -18,10 +17,28 @@
                 "vscjava.vscode-gradle"
             ],
             "settings": {
-                "java.jdt.ls.java.home": "/opt/java/openjdk",
-                "java.import.gradle.java.home": "/opt/java/openjdk",
-                "java.configuration.updateBuildConfiguration": "automatic"
+                "editor.rulers": [
+                    120
+                ],
+                "editor.wordWrap": "wordWrapColumn",
+                "editor.wordWrapColumn": 120,
+                "editor.wrappingIndent": "indent",
+                "java.configuration.updateBuildConfiguration": "automatic",
+                "java.import.gradle.java.home": "/usr/lib/jvm/java-25-temurin",
+                "java.jdt.ls.java.home": "/usr/lib/jvm/java-25-temurin"
             }
         }
-    }
+    },
+    "mounts": [
+        "source=${localEnv:XDG_RUNTIME_DIR},target=/tmp/host-xdg,type=bind"
+    ],
+    "name": "carpet-vpp (OpenMandriva Rock)",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "remoteUser": "dev",
+    "runArgs": [
+        "--device=/dev/dri",
+        "--security-opt=label=disable"
+    ],
+    "shutdownAction": "stopContainer",
+    "updateRemoteUserUID": true
 }
