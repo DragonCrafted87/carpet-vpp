@@ -17,7 +17,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-25-temurin
 
 RUN dnf --refresh --assumeyes --nodocs --setopt=install_weak_deps=False upgrade \
     && dnf --assumeyes --nodocs --setopt=install_weak_deps=False install \
-        SDL2 \
+        lib64SDL2_2.0_1 \
         alsa-lib \
         binutils \
         rootcerts \
