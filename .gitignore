@@ -17,6 +17,7 @@ hs_err_*.log
 out/
 replay_*.log
 run/
+logs/
 server.log
 server_pipe.lnk
 .scratch/codebase.md
