@@ -16,8 +16,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Higher priority to apply after trinkets
-@Mixin(value = InventoryMenu.class, priority = 1100)
+// Bags go in before trinkets records its range. A later refresh then removes
+// trinket slots from the end and does not slide the bag slots.
+@Mixin(value = InventoryMenu.class, priority = 900)
 public abstract class PlayerScreenHandlerMixin extends AbstractContainerMenu
         implements MinecraftVPPScreenHandler {
     protected PlayerScreenHandlerMixin() {

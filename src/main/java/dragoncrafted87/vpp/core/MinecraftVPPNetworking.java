@@ -8,14 +8,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
 public class MinecraftVPPNetworking {
-    public static class EnableSlotsPayload implements CustomPacketPayload {
+    public record EnableSlotsPayload() implements CustomPacketPayload {
         public static final CustomPacketPayload.Type<EnableSlotsPayload> ID =
                 new CustomPacketPayload.Type<>(
                         Identifier.fromNamespaceAndPath(MinecraftVPP.MOD_ID, "enable_slots"));
         public static final StreamCodec<FriendlyByteBuf, EnableSlotsPayload> CODEC =
                 StreamCodec.unit(new EnableSlotsPayload());
-
-        public EnableSlotsPayload() {}
 
         @Override
         public Type<? extends CustomPacketPayload> type() {

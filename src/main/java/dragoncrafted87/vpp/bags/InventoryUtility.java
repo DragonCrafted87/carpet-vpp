@@ -11,7 +11,10 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 public class InventoryUtility {
     public static final Identifier SLOT_TEXTURE =
@@ -29,6 +32,12 @@ public class InventoryUtility {
             }
         }
         return targetStack;
+    }
+
+    public static void alignMenuSlotIndices(List<Slot> slots) {
+        for (int i = 0; i < slots.size(); i++) {
+            slots.get(i).index = i;
+        }
     }
 
     public static void updateBagSlots(Player player) {

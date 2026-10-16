@@ -78,7 +78,15 @@ public class MinecraftVPP implements ModInitializer {
                             .component(TrinketDataComponents.EQUIPMENT, trinket("legs/pouch")),
                     MAX_POUCH_SLOTS,
                     BagType.POUCH);
-    public static final TicketType BEACON = new TicketType(300, TicketType.FLAG_LOADING);
+    // A loading ticket keeps the chunk in memory. The beacon and a command
+    // block in range only keep ticking when the ticket also simulates, and
+    // the dimension stays active when no player is in it.
+    public static final TicketType BEACON =
+            new TicketType(
+                    300,
+                    TicketType.FLAG_LOADING
+                            | TicketType.FLAG_SIMULATION
+                            | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
 
     private static Item.Properties itemProperties(String path) {
         return new Item.Properties()
