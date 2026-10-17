@@ -30,6 +30,11 @@ loom {
             if (run.name == "client" || run.name == "server") {
                 run.vmArg("-Dvpp.debug=true")
             }
+            // The default username is Player plus the current millis, so each launch is a new offline UUID.
+            if (run.name == "client") {
+                run.programArg("--username")
+                run.programArg("Dev")
+            }
         }
     }
 }

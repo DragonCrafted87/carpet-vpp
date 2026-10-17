@@ -1,6 +1,7 @@
 {
     "client": [
         "HandledScreenAccessor",
+        "HudMixin",
         "InGameHudAccessor",
         "InventoryScreenMixin",
         "RecipeBookWidgetMixin",
