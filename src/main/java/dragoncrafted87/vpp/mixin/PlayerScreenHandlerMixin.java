@@ -1,5 +1,6 @@
 package dragoncrafted87.vpp.mixin;
 
+import dragoncrafted87.vpp.DebugFlags;
 import dragoncrafted87.vpp.MinecraftVPP;
 import dragoncrafted87.vpp.bags.screen.BagSlot;
 import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
@@ -32,7 +33,9 @@ public abstract class PlayerScreenHandlerMixin extends AbstractContainerMenu
     @Inject(method = "<init>", at = @At("RETURN"))
     private void vpp$addSlots(
             Inventory inventory, boolean onServer, Player owner, CallbackInfo callbackInfo) {
-        MinecraftVPP.LOGGER.info("Adding bag slots to InventoryMenu, onServer: " + onServer);
+        if (DebugFlags.DEBUG_BAG_EVENTS) {
+            MinecraftVPP.LOGGER.info("Adding bag slots to InventoryMenu, onServer: " + onServer);
+        }
         int x = 8;
         int y = 168;
         for (int i = 0; i < MinecraftVPP.MAX_SATCHEL_SLOTS; i++) {

@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 chmod +x ./gradlew
-./gradlew --no-daemon configureLaunch downloadAssets
+./gradlew --no-daemon configureLaunch downloadAssets setupRunServer
 
 BASHRC="${PWD}/.devcontainer/bashrc"
 if [[ -f "${BASHRC}" ]] && ! grep -Fqs '.devcontainer/bashrc' "${HOME}/.bashrc" 2>/dev/null; then

@@ -45,3 +45,11 @@ repos:
   rev: v0.49.1
   hooks:
   - id: markdownlint
+- repo: local
+  hooks:
+  - id: mod-version-bump
+    name: branch sets a new mod_version
+    entry: python scripts/require-mod-version.py
+    language: system
+    pass_filenames: false
+    always_run: true

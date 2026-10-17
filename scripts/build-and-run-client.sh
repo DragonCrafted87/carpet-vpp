@@ -14,14 +14,5 @@ fi
 
 sleep 1
 
-./gradlew runDatagen
-
-if [ $? -ne 0 ]; then
-    echo "Datagen failed. Exiting."
-    exit 1
-fi
-
-sleep 1
-
-# Launch the server
+# Launch the client
 (set -x; ./gradlew runClient)

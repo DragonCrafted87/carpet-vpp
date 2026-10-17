@@ -41,6 +41,7 @@ public class VppGameTest implements CustomTestMethodInvoker {
         assertRegistered(helper, "satchel", MinecraftVPP.SATCHEL);
         assertRegistered(helper, "upgraded_satchel", MinecraftVPP.UPGRADED_SATCHEL);
         assertRegistered(helper, "satchel_strap", MinecraftVPP.SATCHEL_STRAP);
+        assertRegistered(helper, "bag_upgrade", MinecraftVPP.BAG_UPGRADE);
         assertTrinketSlot(helper, MinecraftVPP.POUCH, "legs/pouch");
         assertTrinketSlot(helper, MinecraftVPP.SATCHEL, "chest/satchel");
         assertBagStoresContents(helper, MinecraftVPP.POUCH);

@@ -26,6 +26,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,10 +102,13 @@ public class MinecraftVPPClient implements ClientModInitializer {
                         }
                         int width = client.font.width(name);
                         int j = (client.getWindow().getGuiScaledWidth() - width) / 2;
-                        int hotbarOffset = client.getWindow().getGuiScaledHeight() - 59;
-                        if (client.gameMode != null && !client.gameMode.hasExperience()) {
-                            hotbarOffset += 14;
-                        }
+                        int hotbarOffset =
+                                StewHudOffset.hotbarOffset(
+                                        client.getWindow().getGuiScaledHeight(),
+                                        client.gameMode != null
+                                                && client.gameMode.getPlayerMode()
+                                                        == GameType.CREATIVE,
+                                        client.gameMode != null && client.gameMode.isSpectator());
                         int opacity = (int) ((float) heldItemTooltipFade * 256.0F / 10.0F);
                         if (opacity > 255) {
                             opacity = 255;

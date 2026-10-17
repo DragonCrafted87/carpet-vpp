@@ -2,6 +2,7 @@
     "recipes": [
         "vpp:pouch",
         "vpp:satchel_strap",
+        "vpp:bag_upgrade",
         "vpp:upgraded_pouch",
         "vpp:upgraded_satchel",
         "vpp:satchel"

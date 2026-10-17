@@ -48,6 +48,7 @@ public class MinecraftVPP implements ModInitializer {
                     Registries.CREATIVE_MODE_TAB,
                     Identifier.fromNamespaceAndPath(MOD_ID, "itemgroup"));
     public static final Item SATCHEL_STRAP = new Item(itemProperties("satchel_strap"));
+    public static final Item BAG_UPGRADE = new Item(itemProperties("bag_upgrade"));
     public static final BaseBagItem SATCHEL =
             new BaseBagItem(
                     itemProperties("satchel")
@@ -108,6 +109,10 @@ public class MinecraftVPP implements ModInitializer {
                 SATCHEL_STRAP);
         Registry.register(
                 BuiltInRegistries.ITEM,
+                Identifier.fromNamespaceAndPath(MOD_ID, "bag_upgrade"),
+                BAG_UPGRADE);
+        Registry.register(
+                BuiltInRegistries.ITEM,
                 Identifier.fromNamespaceAndPath(MOD_ID, "satchel"),
                 SATCHEL);
         Registry.register(
@@ -131,6 +136,7 @@ public class MinecraftVPP implements ModInitializer {
                 .register(
                         content -> {
                             content.accept(SATCHEL_STRAP);
+                            content.accept(BAG_UPGRADE);
                             content.accept(SATCHEL);
                             content.accept(UPGRADED_SATCHEL);
                             content.accept(POUCH);

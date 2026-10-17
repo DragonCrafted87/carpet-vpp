@@ -71,6 +71,12 @@ public class BaseBagItem extends Item implements TrinketCallback {
         updateBagSlotsAndNotify(entity, stack);
     }
 
+    @Override
+    public void onEquippedStackChanged(
+            ItemStack previous, ItemStack newStack, TrinketSlotAccess slot, LivingEntity entity) {
+        updateBagSlotsAndNotify(entity, newStack.isEmpty() ? previous : newStack);
+    }
+
     private void updateBagSlotsAndNotify(LivingEntity entity, ItemStack stack) {
         if (!(entity instanceof Player player)) return;
         InventoryUtility.updateBagSlots(player);

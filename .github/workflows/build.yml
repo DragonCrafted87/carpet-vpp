@@ -28,7 +28,7 @@ jobs:
     - name: make gradle wrapper executable
       if: ${{ runner.os != 'Windows' }}
       run: chmod +x ./gradlew
-    - name: build
+    - name: release build
       run: ./gradlew build
     - name: store test reports
       if: failure()

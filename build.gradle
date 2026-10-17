@@ -5,6 +5,7 @@ plugins {
 version = project.mod_version
 group = project.maven_group
 String archivesBaseName = project.archives_base_name
+def generatedResources = file("build/generated/resources")
 repositories {
     maven {
         name = "Nucleoid"
@@ -21,11 +22,22 @@ loom {
         "vpp" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
+            modFiles.from(generatedResources)
+        }
+    }
+    runs {
+        configureEach { run ->
+            if (run.name == "client" || run.name == "server") {
+                run.vmArg("-Dvpp.debug=true")
+            }
         }
     }
 }
 fabricApi {
-    configureDataGeneration()
+    configureDataGeneration {
+        outputDirectory = generatedResources
+        addToResources = false
+    }
     configureTests {
         createSourceSet = true
         modId = "vpp-test"
@@ -73,9 +85,30 @@ java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
 }
+// Datagen writes build/generated/resources. That directory is not a processResources
+// input, so the jar and the dev runs can depend on runDatagen without a cycle.
+tasks.matching { it.name.startsWith("run") && it.name != "runDatagen" }.configureEach {
+    dependsOn("runDatagen")
+    classpath.from(generatedResources)
+}
+
 jar {
+    dependsOn("runDatagen")
+    from(generatedResources) {
+        exclude(".cache/**")
+    }
     from("LICENSE") {
         rename { "${it}_${archivesBaseName}"}
+    }
+}
+
+def releaseBuild = !Boolean.getBoolean("vpp.debug") && project.findProperty("vpp.debug")?.toString() != "true"
+gradle.taskGraph.whenReady { graph ->
+    if (!releaseBuild && graph.hasTask(tasks.named("build").get())) {
+        throw new GradleException(
+            "build is the release jar. Do not set -Dvpp.debug or -Pvpp.debug. " +
+            "Client and server dev runs set -Dvpp.debug=true themselves."
+        )
     }
 }
 publishing {
@@ -95,16 +128,14 @@ task setupRunServer {
         if (!eulaFile.exists()) {
             eulaFile.text = "eula=true\n"
         }
-        def propsFile = file("${runDir}/server.properties")
-        Properties props = new Properties()
-        if (propsFile.exists()) {
-            props.load(propsFile.newReader())
-        } else {
-            propsFile.createNewFile()
+        def propsFile = new File(runDir, "server.properties")
+        if (!propsFile.exists()) {
+            def template = file(".devcontainer/server.properties")
+            if (!template.exists()) {
+                throw new GradleException("Missing ${template}. It is the dev server.properties template.")
+            }
+            propsFile.bytes = template.bytes
         }
-        props.setProperty("enable-command-block", "true")
-        props.setProperty("online-mode", "false")
-        props.store(propsFile.newWriter(), null)
     }
 }
 tasks.named("runServer").configure {

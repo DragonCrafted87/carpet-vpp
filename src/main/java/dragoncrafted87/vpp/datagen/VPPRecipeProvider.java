@@ -95,15 +95,31 @@ public class VPPRecipeProvider extends FabricRecipeProvider {
                                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.STONE_BUTTON))
                         .save(output);
 
+                ShapedRecipeBuilder.shaped(
+                                itemLookup, RecipeCategory.MISC, MinecraftVPP.BAG_UPGRADE)
+                        .pattern(" L ")
+                        .pattern("LIL")
+                        .pattern(" L ")
+                        .define('L', Items.LEATHER)
+                        .define('I', Items.IRON_INGOT)
+                        .unlockedBy(
+                                "has_leather",
+                                InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                        .unlockedBy(
+                                "has_iron_ingot",
+                                InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
+                        .save(output);
+
                 SmithingTransformRecipeBuilder.smithing(
-                                Ingredient.of(Items.LEATHER),
+                                Ingredient.of(MinecraftVPP.BAG_UPGRADE),
                                 Ingredient.of(MinecraftVPP.POUCH),
                                 Ingredient.of(Items.DIAMOND),
                                 RecipeCategory.MISC,
                                 MinecraftVPP.UPGRADED_POUCH)
                         .unlocks(
-                                "has_leather",
-                                InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                                "has_bag_upgrade",
+                                InventoryChangeTrigger.TriggerInstance.hasItems(
+                                        MinecraftVPP.BAG_UPGRADE))
                         .unlocks(
                                 "has_pouch",
                                 InventoryChangeTrigger.TriggerInstance.hasItems(MinecraftVPP.POUCH))
@@ -113,14 +129,15 @@ public class VPPRecipeProvider extends FabricRecipeProvider {
                         .save(output, "upgraded_pouch");
 
                 SmithingTransformRecipeBuilder.smithing(
-                                Ingredient.of(Items.LEATHER),
+                                Ingredient.of(MinecraftVPP.BAG_UPGRADE),
                                 Ingredient.of(MinecraftVPP.SATCHEL),
                                 Ingredient.of(Items.DIAMOND),
                                 RecipeCategory.MISC,
                                 MinecraftVPP.UPGRADED_SATCHEL)
                         .unlocks(
-                                "has_leather",
-                                InventoryChangeTrigger.TriggerInstance.hasItems(Items.LEATHER))
+                                "has_bag_upgrade",
+                                InventoryChangeTrigger.TriggerInstance.hasItems(
+                                        MinecraftVPP.BAG_UPGRADE))
                         .unlocks(
                                 "has_satchel",
                                 InventoryChangeTrigger.TriggerInstance.hasItems(
