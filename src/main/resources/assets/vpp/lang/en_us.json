@@ -1,0 +1,13 @@
+{
+    "itemGroup.vpp.itemgroup": "vpp",
+    "item.vpp.satchel_strap": "Satchel Strap",
+    "item.vpp.satchel": "Satchel",
+    "item.vpp.upgraded_satchel": "Upgraded Satchel",
+    "item.vpp.pouch": "Pouch",
+    "item.vpp.upgraded_pouch": "Upgraded Pouch",
+    "item.vpp.bag_upgrade": "Bag Upgrade",
+    "trinkets.slot.legs.pouch": "Pouch",
+    "trinkets.slot.chest.satchel": "Satchel",
+    "tooltip.vpp.slots": "Holds %d items",
+    "tag.item.trinkets.legs.pouch": "Pouch"
+}

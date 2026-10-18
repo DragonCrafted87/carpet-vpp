@@ -1,132 +1,148 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
 version = project.mod_version
 group = project.maven_group
-base {
-    archivesName = project.archives_base_name
-}
+String archivesBaseName = project.archives_base_name
+def generatedResources = file("build/generated/resources")
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
     maven {
-        name = "Fabric"
-        url = "https://maven.fabricmc.net/"
+        name = "Nucleoid"
+        url = "https://maven.nucleoid.xyz/releases"
     }
-maven {
-name = "TerraformersMC"
-url = "https://maven.terraformersmc.com/"
-}
-maven {
-name = "Ladysnake Libs"
-url = 'https://maven.ladysnake.org/releases'
-}
     maven {
-        name = "Sleeping Town"
-        url = "https://repo.sleeping.town"
-        content {
-            includeGroup "com.unascribed"
-        }
+        name = "GnomeCraft"
+        url = "https://maven.gnomecraft.net/releases/"
     }
 }
 loom {
     splitEnvironmentSourceSets()
     mods {
-        "template-mod" {
+        "vpp" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
+            modFiles.from(generatedResources)
         }
     }
-    accessWidenerPath = file("src/main/resources/modid.accesswidener")
+    runs {
+        configureEach { run ->
+            if (run.name == "client" || run.name == "server") {
+                run.vmArg("-Dvpp.debug=true")
+            }
+            // The default username is Player plus the current millis, so each launch is a new offline UUID.
+            if (run.name == "client") {
+                run.programArg("--username")
+                run.programArg("Dev")
+            }
+        }
+    }
 }
 fabricApi {
-    configureDataGeneration()
+    configureDataGeneration {
+        outputDirectory = generatedResources
+        addToResources = false
+    }
+    configureTests {
+        createSourceSet = true
+        modId = "vpp-test"
+        enableGameTests = true
+        enableClientGameTests = true
+        eula = true
+    }
 }
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "dev.emi:trinkets:${trinkets_version}"
-    include "dev.emi:trinkets:${trinkets_version}"
-    modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
-    modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "eu.pb4:trinkets:${project.trinkets_version}"
+    testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 }
+test {
+    useJUnitPlatform()
+}
+
+def fabric_version_short = project.fabric_version.split("\\+")[0]
+def minecraft_version_val = project.minecraft_version
+def loader_version_val = project.loader_version
+def mod_version_val = project.version
+
 processResources {
-    inputs.property("version", project.version)
-    inputs.property("fabric_version", project.fabric_version.split("\\+")[0])
-    inputs.property("minecraft_version", project.minecraft_version)
-    inputs.property("trinkets_version", project.trinkets_version)
-    inputs.property("emi_version", project.emi_version.split("\\+")[0])
-    inputs.property("lib39_version", project.lib39_version)
+    inputs.property("version", mod_version_val)
+    inputs.property("fabric_version", fabric_version_short)
+    inputs.property("minecraft_version", minecraft_version_val)
+    inputs.property("loader_version", loader_version_val)
     filesMatching("fabric.mod.json") {
         expand(
-            "version": project.version,
-            "fabric_version": project.fabric_version.split("\\+")[0],
-            "minecraft_version": project.minecraft_version,
-            "trinkets_version": project.trinkets_version,
-            "emi_version": project.emi_version.split("\\+")[0],
-            "lib39_version": project.lib39_version
+            "version": mod_version_val,
+            "fabric_version": fabric_version_short,
+            "minecraft_version": minecraft_version_val,
+            "loader_version": loader_version_val
         )
     }
 }
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+    it.options.release = 25
     it.options.encoding = 'UTF-8'
 }
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
+// Datagen writes build/generated/resources. That directory is not a processResources
+// input, so the jar and the dev runs can depend on runDatagen without a cycle.
+tasks.matching { it.name.startsWith("run") && it.name != "runDatagen" }.configureEach {
+    dependsOn("runDatagen")
+    classpath.from(generatedResources)
+}
+
 jar {
+    dependsOn("runDatagen")
+    from(generatedResources) {
+        exclude(".cache/**")
+    }
     from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}"}
+        rename { "${it}_${archivesBaseName}"}
     }
 }
-// configure the maven publication
+
+def releaseBuild = !Boolean.getBoolean("vpp.debug") && project.findProperty("vpp.debug")?.toString() != "true"
+gradle.taskGraph.whenReady { graph ->
+    if (!releaseBuild && graph.hasTask(tasks.named("build").get())) {
+        throw new GradleException(
+            "build is the release jar. Do not set -Dvpp.debug or -Pvpp.debug. " +
+            "Client and server dev runs set -Dvpp.debug=true themselves."
+        )
+    }
+}
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
         }
     }
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
     }
 }
 task setupRunServer {
     doLast {
         def runDir = file('run')
         runDir.mkdirs()
-        // EULA
         def eulaFile = file("${runDir}/eula.txt")
         if (!eulaFile.exists()) {
             eulaFile.text = "eula=true\n"
         }
-        // server.properties
-        def propsFile = file("${runDir}/server.properties")
-        Properties props = new Properties()
-        if (propsFile.exists()) {
-            props.load(propsFile.newReader())
-        } else {
-            propsFile.createNewFile()
+        def propsFile = new File(runDir, "server.properties")
+        if (!propsFile.exists()) {
+            def template = file(".devcontainer/server.properties")
+            if (!template.exists()) {
+                throw new GradleException("Missing ${template}. It is the dev server.properties template.")
+            }
+            propsFile.bytes = template.bytes
         }
-        props.setProperty("enable-command-block", "true")
-        props.store(propsFile.newWriter(), null)
     }
 }
-runServer.dependsOn setupRunServer
+tasks.named("runServer").configure {
+    dependsOn setupRunServer
+}

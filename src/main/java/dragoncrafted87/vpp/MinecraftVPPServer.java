@@ -1,13 +1,19 @@
 package dragoncrafted87.vpp;
 
 import com.mojang.authlib.GameProfile;
+
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.OperatorEntry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.server.players.ServerOpListEntry;
+import net.minecraft.world.item.crafting.RecipeHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,23 +27,36 @@ public class MinecraftVPPServer implements DedicatedServerModInitializer {
     @Override
     public void onInitializeServer() {
         LOGGER.info("MinecraftVPPServer initialized successfully");
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            onServerLoaded(server);
-        });
+        ServerLifecycleEvents.SERVER_STARTED.register(
+                server -> {
+                    onServerLoaded(server);
+                });
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-                GameProfile profile = handler.player.getGameProfile();
-                server.getPlayerManager().getOpList().add(new OperatorEntry(profile, 4, false));
-                try {
-                    server.getPlayerManager().getOpList().save();
-                } catch (IOException e) {
-                    LOGGER.error("Failed to save ops.json", e);
-                }
-                LOGGER.info("Opped {} in development server", handler.player.getName().getString());
-                Collection<Recipe<?>> recipes = server.getRecipeManager().values();
-                handler.player.unlockRecipes(recipes);
-                LOGGER.info("Unlocked all recipes for {} in development server", handler.player.getName().getString());
-            });
+            ServerPlayConnectionEvents.JOIN.register(
+                    (handler, sender, server) -> {
+                        ServerPlayer player = handler.player;
+                        GameProfile profile = player.getGameProfile();
+                        server.getPlayerList()
+                                .getOps()
+                                .add(
+                                        new ServerOpListEntry(
+                                                new NameAndId(profile),
+                                                LevelBasedPermissionSet.forLevel(
+                                                        PermissionLevel.OWNERS),
+                                                false));
+                        try {
+                            server.getPlayerList().getOps().save();
+                        } catch (IOException e) {
+                            LOGGER.error("Failed to save ops.json", e);
+                        }
+                        LOGGER.info("Opped {} in development server", player.getName().getString());
+                        Collection<RecipeHolder<?>> recipes =
+                                server.getRecipeManager().getRecipes();
+                        player.awardRecipes(recipes);
+                        LOGGER.info(
+                                "Unlocked all recipes for {} in development server",
+                                player.getName().getString());
+                    });
         }
     }
 

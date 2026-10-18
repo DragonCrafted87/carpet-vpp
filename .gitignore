@@ -17,6 +17,11 @@ hs_err_*.log
 out/
 replay_*.log
 run/
+logs/
 server.log
 server_pipe.lnk
 .scratch/codebase.md
+src/main/generated/**
+
+.kobold/trail.md
+.kobold/bounds.local.yaml

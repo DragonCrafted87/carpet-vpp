@@ -1,20 +1,23 @@
 package dragoncrafted87.vpp.gui;
 
 import com.google.common.math.IntMath;
-import com.mojang.blaze3d.systems.RenderSystem;
+
 import dragoncrafted87.vpp.bags.InventoryUtility;
 import dragoncrafted87.vpp.bags.item.BagTooltipData;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
+
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
+
+import org.joml.Matrix3x2fStack;
+
 import java.math.RoundingMode;
 
-public class BagTooltipComponent implements TooltipComponent {
-    private final DefaultedList<ItemStack> inventory;
+public class BagTooltipComponent implements ClientTooltipComponent {
+    private final NonNullList<ItemStack> inventory;
     private final int slotCount;
 
     public BagTooltipComponent(BagTooltipData data) {
@@ -23,38 +26,69 @@ public class BagTooltipComponent implements TooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(Font font) {
         return (18 * IntMath.divide(slotCount, 6, RoundingMode.UP)) + 2;
     }
 
     @Override
-    public int getWidth(TextRenderer textRenderer) {
+    public int getWidth(Font font) {
         return 18 * (slotCount < 6 ? slotCount : 6);
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer,
-            int z) {
-        matrices.push();
-        matrices.translate(0.0f, 0.0f, (float) z);
+    public void extractImage(
+            Font font, int x, int y, int width, int height, GuiGraphicsExtractor context) {
         int originalX = x;
+        int tx = x;
+        int ty = y;
         for (int i = 0; i < slotCount; i++) {
-            ItemStack itemStack = this.inventory.get(i);
-            this.drawSlot(matrices, x, y);
-            itemRenderer.renderInGui(itemStack, x + 1, y + 1);
-            itemRenderer.renderGuiItemOverlay(textRenderer, itemStack, x + 1, y + 1);
-            x += 18;
+            context.blit(
+                    RenderPipelines.GUI_TEXTURED,
+                    InventoryUtility.SLOT_TEXTURE,
+                    tx,
+                    ty,
+                    7.0f,
+                    7.0f,
+                    18,
+                    18,
+                    256,
+                    256);
+            tx += 18;
             if ((i + 1) % 6 == 0) {
-                y += 18;
-                x = originalX;
+                ty += 18;
+                tx = originalX;
             }
         }
-        matrices.pop();
-    }
-
-    private void drawSlot(MatrixStack matrices, int x, int y) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, InventoryUtility.SLOT_TEXTURE);
-        DrawableHelper.drawTexture(matrices, x, y, 7f, 7f, 18, 18, 256, 256);
+        Matrix3x2fStack matrices = context.pose();
+        matrices.pushMatrix();
+        tx = x;
+        ty = y;
+        for (int i = 0; i < slotCount; i++) {
+            ItemStack itemStack = this.inventory.get(i);
+            context.item(itemStack, tx + 1, ty + 1);
+            tx += 18;
+            if ((i + 1) % 6 == 0) {
+                ty += 18;
+                tx = originalX;
+            }
+        }
+        matrices.popMatrix();
+        matrices.pushMatrix();
+        tx = x;
+        ty = y;
+        for (int i = 0; i < slotCount; i++) {
+            ItemStack itemStack = this.inventory.get(i);
+            if (itemStack.getCount() > 1) {
+                String count = String.valueOf(itemStack.getCount());
+                context.text(
+                        font, count, tx + 19 - 2 - font.width(count), ty + 6 + 3, 16777215, true);
+            }
+            tx += 18;
+            if ((i + 1) % 6 == 0) {
+                ty += 18;
+                tx = originalX;
+            }
+        }
+        matrices.popMatrix();
     }
 }

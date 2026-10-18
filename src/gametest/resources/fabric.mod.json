@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "vpp-test",
+  "version": "1.0.0",
+  "name": "VPP Tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "dragoncrafted87.vpp.gametest.VppGameTest"
+    ],
+    "fabric-client-gametest": [
+      "dragoncrafted87.vpp.gametest.VppClientGameTest"
+    ]
+  },
+  "depends": {
+    "vpp": "*",
+    "fabric-api": "*"
+  }
+}

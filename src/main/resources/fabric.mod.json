@@ -1,6 +1,5 @@
 {
     "schemaVersion": 1,
-    "accessWidener": "modid.accesswidener",
     "authors": [
         "Me!"
     ],
@@ -9,12 +8,12 @@
         "sources": "https://github.com/FabricMC/fabric-example-mod"
     },
     "depends": {
-        "fabric": ">=${fabric_version}",
+        "fabricloader": ">=${loader_version}",
+        "fabric-api": ">=${fabric_version}",
         "minecraft": ">=${minecraft_version}",
-        "trinkets": ">=${trinkets_version}"
+        "trinkets": ">=4.2.1"
     },
     "recommends": {
-        "emi": ">=${emi_version}"
     },
     "breaks": {
         "infinitory": "*",
@@ -35,18 +34,18 @@
         "server": [
             "dragoncrafted87.vpp.MinecraftVPPServer"
         ],
-        "emi": [
-            "dragoncrafted87.vpp.compat.MinecraftVPPEmiPlugin"
+        "fabric-datagen": [
+            "dragoncrafted87.vpp.datagen.VPPDataGenerator"
         ]
     },
     "environment": "*",
-    "icon": "assets/minecraft-vpp/icon.png",
-    "id": "minecraft-vpp",
+    "icon": "assets/vpp/icon.png",
+    "id": "vpp",
     "license": "MIT",
     "mixins": [
-        "minecraft-vpp.mixins.json",
+        "vpp.mixins.json",
         {
-            "config": "minecraft-vpp.client.mixins.json",
+            "config": "vpp.client.mixins.json",
             "environment": "client"
         }
     ],

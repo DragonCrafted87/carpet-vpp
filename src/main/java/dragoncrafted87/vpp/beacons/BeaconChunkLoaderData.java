@@ -1,65 +1,63 @@
 package dragoncrafted87.vpp.beacons;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateManager;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dragoncrafted87.vpp.MinecraftVPP;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.SavedDataStorage;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
-public class BeaconChunkLoaderData extends PersistentState {
+public class BeaconChunkLoaderData extends SavedData {
     public Set<BlockPos> activeBeacons = new HashSet<>();
 
-    @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        NbtList list = new NbtList();
-        for (BlockPos pos : activeBeacons) {
-            NbtCompound compound = new NbtCompound();
-            compound.putInt("x", pos.getX());
-            compound.putInt("y", pos.getY());
-            compound.putInt("z", pos.getZ());
-            list.add(compound);
-        }
-        nbt.put("activeBeacons", list);
-        return nbt;
+    private BeaconChunkLoaderData() {}
+
+    private BeaconChunkLoaderData(Set<BlockPos> activeBeacons) {
+        this.activeBeacons = activeBeacons;
     }
 
-    public static BeaconChunkLoaderData createFromNbt(NbtCompound tag) {
-        BeaconChunkLoaderData data = new BeaconChunkLoaderData();
-        NbtList list = tag.getList("activeBeacons", 10); // 10 = NbtCompound
-        for (int i = 0; i < list.size(); i++) {
-            NbtCompound compound = list.getCompound(i);
-            int x = compound.getInt("x");
-            int y = compound.getInt("y");
-            int z = compound.getInt("z");
-            data.activeBeacons.add(new BlockPos(x, y, z));
-        }
-        return data;
-    }
+    private static final Codec<Set<BlockPos>> SET_CODEC =
+            BlockPos.CODEC.listOf().xmap(HashSet::new, ArrayList::new);
 
-    public static BeaconChunkLoaderData get(ServerWorld world) {
-        PersistentStateManager manager = world.getPersistentStateManager();
-        Function<NbtCompound, BeaconChunkLoaderData> readFunction = BeaconChunkLoaderData::createFromNbt;
-        Supplier<BeaconChunkLoaderData> supplier = BeaconChunkLoaderData::new;
-        return manager.getOrCreate(readFunction, supplier, MinecraftVPP.MOD_ID);
+    private static final Codec<BeaconChunkLoaderData> CODEC =
+            RecordCodecBuilder.create(
+                    instance ->
+                            instance.group(
+                                            SET_CODEC
+                                                    .fieldOf("activeBeacons")
+                                                    .forGetter(data -> data.activeBeacons))
+                                    .apply(instance, BeaconChunkLoaderData::new));
+
+    private static final SavedDataType<BeaconChunkLoaderData> TYPE =
+            new SavedDataType<>(
+                    Identifier.fromNamespaceAndPath(MinecraftVPP.MOD_ID, "beacons"),
+                    BeaconChunkLoaderData::new,
+                    CODEC,
+                    null);
+
+    public static BeaconChunkLoaderData get(ServerLevel world) {
+        SavedDataStorage manager = world.getDataStorage();
+        return manager.computeIfAbsent(TYPE);
     }
 
     public void addBeacon(BlockPos pos) {
         if (activeBeacons.add(pos)) {
-            markDirty();
+            setDirty();
         }
     }
 
     public void removeBeacon(BlockPos pos) {
         if (activeBeacons.remove(pos)) {
-            markDirty();
+            setDirty();
         }
     }
 }

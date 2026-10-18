@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         # Use these Java versions
-        java: [21]
+        java: [25]
         # and run on both Linux and Windows
         os: [ubuntu-22.04, windows-2022]
     runs-on: ${{ matrix.os }}
@@ -28,11 +28,19 @@ jobs:
     - name: make gradle wrapper executable
       if: ${{ runner.os != 'Windows' }}
       run: chmod +x ./gradlew
-    - name: build
+    - name: release build
       run: ./gradlew build
+    - name: store test reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: reports-${{ runner.os }}
+        path: |
+          **/build/reports/
+          **/build/test-results/
     - name: capture build artifacts
     # Only upload artifacts built from latest java on one OS
-      if: ${{ runner.os == 'Linux' && matrix.java == '21' }}
+      if: ${{ runner.os == 'Linux' && matrix.java == '25' }}
       uses: actions/upload-artifact@v4
       with:
         name: dragoncrafted87-minecraft-vpp-jars

@@ -1,0 +1,19 @@
+{
+    "compatibilityLevel": "JAVA_21",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "BeaconBlockEntityAccessor",
+        "BeaconBlockEntityMixin",
+        "BlocksMixin",
+        "EndPortalFrameBlockMixin",
+        "InventoryMenuSlotIndexMixin",
+        "PlayerScreenHandlerMixin",
+        "ScreenHandlerMixin",
+        "ServerPlayerEntityMixin"
+    ],
+    "package": "dragoncrafted87.vpp.mixin",
+    "refmap": "vpp-refmap.json",
+    "required": true
+}

@@ -1,0 +1,17 @@
+{
+    "client": [
+        "HandledScreenAccessor",
+        "HudMixin",
+        "InGameHudAccessor",
+        "InventoryScreenMixin",
+        "RecipeBookWidgetMixin",
+        "BaseBagItemMixin"
+    ],
+    "compatibilityLevel": "JAVA_21",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "package": "dragoncrafted87.vpp.mixin.client",
+    "refmap": "vpp-client-refmap.json",
+    "required": true
+}

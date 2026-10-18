@@ -1,138 +1,177 @@
 package dragoncrafted87.vpp;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dragoncrafted87.vpp.bags.BaseBagItem.BagType;
 import dragoncrafted87.vpp.bags.InventoryUtility;
-import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
-import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
-import dragoncrafted87.vpp.gui.BagTooltipComponent;
 import dragoncrafted87.vpp.bags.item.BagTooltipData;
+import dragoncrafted87.vpp.core.MinecraftVPPNetworking;
+import dragoncrafted87.vpp.core.MinecraftVPPScreenHandler;
+import dragoncrafted87.vpp.gui.BagTooltipComponent;
 import dragoncrafted87.vpp.mixin.client.InGameHudAccessor;
 import dragoncrafted87.vpp.stew.StewInfo;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 public class MinecraftVPPClient implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("MinecraftVPPClient");
+    private static final Identifier STEW_HUD =
+            Identifier.fromNamespaceAndPath(MinecraftVPP.MOD_ID, "stew_hud");
 
     @Override
     public void onInitializeClient() {
         LOGGER.info("MinecraftVPPClient initialized successfully");
-        ClientPlayNetworking.registerGlobalReceiver(MinecraftVPPNetworking.ENABLE_SLOTS,
-                (client, handler, packet, sender) -> {
-                    client.execute(() -> {
-                        if (client.player != null) {
-                            InventoryUtility.updateBagSlots(client.player);
-                        }
-                    });
+        ClientPlayNetworking.registerGlobalReceiver(
+                MinecraftVPPNetworking.EnableSlotsPayload.ID,
+                (payload, context) -> {
+                    context.client()
+                            .execute(
+                                    () -> {
+                                        if (context.player() != null) {
+                                            InventoryUtility.updateBagSlots(context.player());
+                                        }
+                                    });
                 });
-        ClientPlayConnectionEvents.JOIN.register((netHandler, packetSender, client) -> {
-            client.execute(() -> {
-                if (client.player != null) {
-                    InventoryUtility.updateBagSlots(client.player);
-                    if (DebugFlags.DEBUG_BAG_EVENTS) {
-                        LOGGER.info("Updated bag slots on client join");
+        ClientPlayConnectionEvents.JOIN.register(
+                (netHandler, packetSender, client) -> {
+                    client.execute(
+                            () -> {
+                                if (client.player != null) {
+                                    InventoryUtility.updateBagSlots(client.player);
+                                    if (DebugFlags.DEBUG_BAG_EVENTS) {
+                                        LOGGER.info("Updated bag slots on client join");
+                                    }
+                                }
+                            });
+                });
+        ClientTooltipComponentCallback.EVENT.register(
+                data -> {
+                    if (data instanceof BagTooltipData tooltipData) {
+                        return new BagTooltipComponent(tooltipData);
                     }
-                }
-            });
-        });
-        TooltipComponentCallback.EVENT.register(data -> {
-            if (data instanceof BagTooltipData d) {
-                return new BagTooltipComponent(d);
-            }
-            return null;
-        });
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player != null && isBagSlotMismatch(client.player)) {
-                InventoryUtility.updateBagSlots(client.player);
-                if (DebugFlags.DEBUG_BAG_EVENTS) {
-                    LOGGER.info("Detected mismatch, updating bag slots");
-                }
-            }
-        });
-        // Replacement for InGameHudMixin: Add stew effects to held item HUD
-        HudRenderCallback.EVENT.register((matrices, tickDelta) -> {
-            MinecraftClient client = MinecraftClient.getInstance();
-            ItemStack currentStack = client.player.getMainHandStack(); // Check main hand; adjust for offhand if needed
-            int heldItemTooltipFade = ((InGameHudAccessor) client.inGameHud).getHeldItemTooltipFade();
-            if (heldItemTooltipFade > 0 && !currentStack.isEmpty()) {
-                client.getProfiler().push("vppHeldItemTooltip");
-                MutableText name = Text.empty().append(currentStack.getName())
-                        .formatted(currentStack.getRarity().formatting);
-                if (currentStack.hasCustomName()) {
-                    name.formatted(Formatting.ITALIC);
-                }
-                int width = client.textRenderer.getWidth(name);
-                int j = (client.getWindow().getScaledWidth() - width) / 2;
-                int hotbarOffset = client.getWindow().getScaledHeight() - 59;
-                if (!client.interactionManager.hasStatusBars()) {
-                    hotbarOffset += 14;
-                }
-                int opacity = (int) ((float) heldItemTooltipFade * 256.0F / 10.0F);
-                if (opacity > 255) {
-                    opacity = 255;
-                }
-                if (opacity > 0) {
-                    RenderSystem.enableBlend();
-                    RenderSystem.defaultBlendFunc();
-                    DrawableHelper.fill(matrices, j - 2, hotbarOffset - 2, j + width + 2, hotbarOffset + 9 + 2,
-                            client.options.getTextBackgroundColor(0));
-                    List<Text> effectTexts = StewInfo.getStewEffectTexts(currentStack);
-                    if (!effectTexts.isEmpty() && DebugFlags.DEBUG_STEW_INFO) {
-                        LOGGER.info("Displaying stew effects in HUD for item: {}", currentStack.getName().getString());
+                    return null;
+                });
+        ClientTickEvents.END_CLIENT_TICK.register(
+                client -> {
+                    if (client.player != null && isBagSlotMismatch(client.player)) {
+                        InventoryUtility.updateBagSlots(client.player);
+                        if (DebugFlags.DEBUG_BAG_EVENTS) {
+                            LOGGER.info("Detected mismatch, updating bag slots");
+                        }
                     }
-                    for (int i = 0; i < effectTexts.size(); i++) {
-                        Text text = effectTexts.get(i);
-                        j = (client.getWindow().getScaledWidth() - client.textRenderer.getWidth(text)) / 2;
-                        client.textRenderer.drawWithShadow(matrices, text, (float) j,
-                                (float) (hotbarOffset - (i * 14) - 14), 13421772 + (opacity << 24));
+                });
+        HudElementRegistry.attachElementAfter(
+                VanillaHudElements.HELD_ITEM_TOOLTIP,
+                STEW_HUD,
+                (graphics, tickCounter) -> {
+                    Minecraft client = Minecraft.getInstance();
+                    if (client.player == null) {
+                        return;
                     }
-                    RenderSystem.disableBlend();
-                }
-                client.getProfiler().pop();
-            }
-        });
-        // Partial replacement for ItemStackMixin: Add stew effects to item tooltip
-        ItemTooltipCallback.EVENT.register((stack, context, lines) -> {
-            StewInfo.onInjectTooltip(stack, lines);
-        });
+                    ItemStack currentStack = client.player.getMainHandItem();
+                    int heldItemTooltipFade =
+                            ((InGameHudAccessor) client.gui.hud).getHeldItemTooltipFade();
+                    if (heldItemTooltipFade > 0 && !currentStack.isEmpty()) {
+                        Profiler.get().push("vppHeldItemTooltip");
+                        MutableComponent name =
+                                Component.empty()
+                                        .append(currentStack.getHoverName())
+                                        .withStyle(currentStack.getRarity().color());
+                        if (currentStack.has(DataComponents.CUSTOM_NAME)) {
+                            name.withStyle(ChatFormatting.ITALIC);
+                        }
+                        int width = client.font.width(name);
+                        int j = (client.getWindow().getGuiScaledWidth() - width) / 2;
+                        int hotbarOffset =
+                                StewHudOffset.hotbarOffset(
+                                        client.getWindow().getGuiScaledHeight(),
+                                        client.gameMode != null
+                                                && client.gameMode.getPlayerMode()
+                                                        == GameType.CREATIVE,
+                                        client.gameMode != null && client.gameMode.isSpectator());
+                        int opacity = (int) ((float) heldItemTooltipFade * 256.0F / 10.0F);
+                        if (opacity > 255) {
+                            opacity = 255;
+                        }
+                        if (opacity > 0) {
+                            graphics.fill(
+                                    j - 2,
+                                    hotbarOffset - 2,
+                                    j + width + 2,
+                                    hotbarOffset + 9 + 2,
+                                    client.options.getBackgroundColor(0));
+                            List<Component> effectTexts = StewInfo.getStewEffectTexts(currentStack);
+                            if (!effectTexts.isEmpty() && DebugFlags.DEBUG_STEW_INFO) {
+                                LOGGER.info(
+                                        "Displaying stew effects in HUD for item: {}",
+                                        currentStack.getHoverName().getString());
+                            }
+                            for (int i = 0; i < effectTexts.size(); i++) {
+                                Component text = effectTexts.get(i);
+                                int textX =
+                                        (client.getWindow().getGuiScaledWidth()
+                                                        - client.font.width(text))
+                                                / 2;
+                                graphics.text(
+                                        client.font,
+                                        text,
+                                        textX,
+                                        hotbarOffset - (i * 14) - 14,
+                                        13421772 + (opacity << 24),
+                                        true);
+                            }
+                        }
+                        Profiler.get().pop();
+                    }
+                });
+        ItemTooltipCallback.EVENT.register(
+                (stack, context, type, lines) -> {
+                    StewInfo.onInjectTooltip(stack, lines);
+                    if (stack.getItem() instanceof dragoncrafted87.vpp.bags.BaseBagItem bag) {
+                        lines.add(
+                                Component.translatable(
+                                                "tooltip.vpp.slots",
+                                                Component.literal(
+                                                                String.valueOf(bag.getSlotCount()))
+                                                        .withStyle(ChatFormatting.BLUE))
+                                        .withStyle(ChatFormatting.GRAY));
+                    }
+                });
     }
 
-    private static boolean isBagSlotMismatch(PlayerEntity player) {
-        MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.playerScreenHandler;
-        // Check satchel
+    private static boolean isBagSlotMismatch(Player player) {
+        MinecraftVPPScreenHandler handler = (MinecraftVPPScreenHandler) player.inventoryMenu;
         ItemStack satchel = InventoryUtility.findBagItem(player, BagType.SATCHEL, false);
         boolean satchelPresent = !satchel.isEmpty();
-        boolean satchelEnabled = handler.vpp$getSatchelSlots().get(0).isEnabled();
-        if (satchelPresent != satchelEnabled)
-            return true;
-        // Left pouch
+        boolean satchelEnabled = handler.vpp$getSatchelSlots().get(0).isActive();
+        if (satchelPresent != satchelEnabled) return true;
         ItemStack leftPouch = InventoryUtility.findBagItem(player, BagType.POUCH, false);
         boolean leftPresent = !leftPouch.isEmpty();
-        boolean leftEnabled = handler.vpp$getLeftPouchSlots().get(0).isEnabled();
-        if (leftPresent != leftEnabled)
-            return true;
-        // Right pouch
+        boolean leftEnabled = handler.vpp$getLeftPouchSlots().get(0).isActive();
+        if (leftPresent != leftEnabled) return true;
         ItemStack rightPouch = InventoryUtility.findBagItem(player, BagType.POUCH, true);
         boolean rightPresent = !rightPouch.isEmpty();
-        boolean rightEnabled = handler.vpp$getRightPouchSlots().get(0).isEnabled();
-        if (rightPresent != rightEnabled)
-            return true;
-        return false;
+        boolean rightEnabled = handler.vpp$getRightPouchSlots().get(0).isActive();
+        return rightPresent != rightEnabled;
     }
 }

@@ -1,0 +1,44 @@
+{
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile"
+    },
+    "containerEnv": {
+        "DISPLAY": "${localEnv:DISPLAY}",
+        "JAVA_HOME": "/usr/lib/jvm/java-25-temurin",
+        "WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+        "XDG_RUNTIME_DIR": "/tmp/host-xdg",
+        "XDG_SESSION_TYPE": "${localEnv:XDG_SESSION_TYPE}"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "vscjava.vscode-gradle"
+            ],
+            "settings": {
+                "editor.rulers": [
+                    120
+                ],
+                "editor.wordWrap": "wordWrapColumn",
+                "editor.wordWrapColumn": 120,
+                "editor.wrappingIndent": "indent",
+                "java.configuration.updateBuildConfiguration": "automatic",
+                "java.import.gradle.java.home": "/usr/lib/jvm/java-25-temurin",
+                "java.jdt.ls.java.home": "/usr/lib/jvm/java-25-temurin"
+            }
+        }
+    },
+    "mounts": [
+        "source=${localEnv:XDG_RUNTIME_DIR},target=/tmp/host-xdg,type=bind"
+    ],
+    "name": "carpet-vpp (OpenMandriva Rock)",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "remoteUser": "dev",
+    "runArgs": [
+        "--device=/dev/dri",
+        "--security-opt=label=disable"
+    ],
+    "shutdownAction": "stopContainer",
+    "updateRemoteUserUID": true
+}
