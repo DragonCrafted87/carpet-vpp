@@ -5,3 +5,7 @@ plans: docs/plans
 specs: docs/specs
 plans-tracked: true
 specs-tracked: true
+requirements:
+  source: markdown
+  path: docs/requirements
+  tracked: true
